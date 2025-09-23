@@ -16,13 +16,13 @@ class PenjualanController extends Controller
     public function index(Request $request)
     {
         // Get filter parameters
-        $bulan = $request->get('bulan', 'all'); // default semua bulan
-        $tahun = $request->get('tahun', null); // default semua tahun
+        $bulan = $request->get('bulan', 'all');
+        $tahun = $request->get('tahun', null);
         $barang_filter = $request->get('barang_filter', '');
         $activeTab = $request->get('tab', 'data');
 
         // Pagination settings
-        $perPage = $request->get('per_page', 10); // Default 15 items per page
+        $perPage = $request->get('per_page', 10);
         $perPageOptions = [10, 15, 25, 50, 100];
 
         // Get all sales data with filters and pagination
@@ -72,6 +72,27 @@ class PenjualanController extends Controller
             ->paginate($perPage, ['*'], 'ringkasan_page')
             ->appends($request->query());
 
+        // NEW: Get monthly breakdown for specific item when "all months" is selected
+        $monthlyBreakdown = [];
+        if ($activeTab === 'ringkasan' && $barang_filter && $bulan === 'all' && $tahun) {
+            $monthlyData = Penjualan::select(
+                DB::raw('MONTH(tanggal) as bulan'),
+                DB::raw('SUM(jumlah_penjualan) as total_terjual'),
+                DB::raw('SUM(total_harga) as total_pendapatan'),
+                DB::raw('AVG(harga_satuan) as harga_rata_rata'),
+                DB::raw('COUNT(*) as jumlah_transaksi')
+            )
+            ->where('nama_barang', $barang_filter)
+            ->whereYear('tanggal', $tahun)
+            ->groupBy(DB::raw('MONTH(tanggal)'))
+            ->orderBy('bulan')
+            ->get();
+
+            foreach ($monthlyData as $data) {
+                $monthlyBreakdown[$data->bulan] = $data;
+            }
+        }
+
         // Get available stock items for create form
         $barang = Barang::stokTersedia()->get();
 
@@ -105,7 +126,7 @@ class PenjualanController extends Controller
         $totalTransaksi = $allPenjualan->count();
         $totalBarangTerjual = $allPenjualan->sum('jumlah_penjualan');
 
-        // Month names for display (FIXED: only use integer keys to prevent duplication)
+        // Month names for display
         $monthNames = [
             1 => 'Januari',
             2 => 'Februari',
@@ -137,7 +158,8 @@ class PenjualanController extends Controller
             'totalBarangTerjual',
             'monthNames',
             'perPage',
-            'perPageOptions'
+            'perPageOptions',
+            'monthlyBreakdown' // NEW: Pass monthly breakdown data
         ));
     }
 
@@ -165,7 +187,7 @@ class PenjualanController extends Controller
             'nama_barang' => $barang->nama_barang,
             'jumlah_penjualan' => $request->jumlah_penjualan,
             'harga_satuan' => $barang->harga,
-            'stok' => $barang->stok, // Stok setelah dikurangi
+            'stok' => $barang->stok,
             'tanggal' => $request->tanggal,
             'total_harga' => $request->jumlah_penjualan * $barang->harga,
         ];

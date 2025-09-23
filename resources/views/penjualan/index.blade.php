@@ -320,6 +320,125 @@
                         </form>
                     </div>
 
+                    @if ($activeTab === 'ringkasan' && $barang_filter && $bulan === 'all' && $tahun && count($monthlyBreakdown) > 0)
+                        <div class="p-3 bg-light border-bottom">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6 class="mb-3 text-primary">
+                                        <i class="bi bi-calendar-range me-2"></i>
+                                        Breakdown Bulanan - {{ $barang_filter }} ({{ $tahun }})
+                                    </h6>
+
+                                    {{-- Monthly Summary Cards --}}
+                                    <div class="row g-2">
+                                        @php
+                                            $totalYearSales = 0;
+                                            $totalYearRevenue = 0;
+                                            $totalYearTransactions = 0;
+                                        @endphp
+
+                                        @for ($month = 1; $month <= 12; $month++)
+                                            @php
+                                                $monthData = $monthlyBreakdown[$month] ?? null;
+                                                if ($monthData) {
+                                                    $totalYearSales += $monthData->total_terjual;
+                                                    $totalYearRevenue += $monthData->total_pendapatan;
+                                                    $totalYearTransactions += $monthData->jumlah_transaksi;
+                                                }
+                                            @endphp
+
+                                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+                                                <div
+                                                    class="card border-0 {{ $monthData ? 'bg-success-subtle border-success' : 'bg-light' }} h-100">
+                                                    <div class="card-body p-2 text-center">
+                                                        <small
+                                                            class="text-muted fw-semibold">{{ $monthNames[$month] }}</small>
+
+                                                        @if ($monthData)
+                                                            <div class="mt-1">
+                                                                <div class="text-success fw-bold small">
+                                                                    {{ number_format($monthData->total_terjual) }} unit
+                                                                </div>
+                                                                <div class="text-success small">
+                                                                    Rp
+                                                                    {{ number_format($monthData->total_pendapatan, 0, ',', '.') }}
+                                                                </div>
+                                                                <div class="text-muted" style="font-size: 10px;">
+                                                                    {{ $monthData->jumlah_transaksi }} transaksi
+                                                                </div>
+                                                            </div>
+                                                        @else
+                                                            <div class="mt-1 text-muted small">
+                                                                Tidak ada data
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endfor
+                                    </div>
+
+                                    {{-- Year Total Summary --}}
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <div class="card border-primary bg-primary-subtle">
+                                                <div class="card-body p-3">
+                                                    <div class="row text-center">
+                                                        <div class="col-md-3">
+                                                            <div class="text-primary fw-bold">
+                                                                {{ number_format($totalYearSales) }} unit
+                                                            </div>
+                                                            <small class="text-muted">Total Terjual
+                                                                {{ $tahun }}</small>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="text-success fw-bold">
+                                                                Rp {{ number_format($totalYearRevenue, 0, ',', '.') }}
+                                                            </div>
+                                                            <small class="text-muted">Total Pendapatan
+                                                                {{ $tahun }}</small>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="text-info fw-bold">
+                                                                {{ number_format($totalYearTransactions) }}
+                                                            </div>
+                                                            <small class="text-muted">Total Transaksi
+                                                                {{ $tahun }}</small>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="text-warning fw-bold">
+                                                                Rp
+                                                                {{ $totalYearSales > 0 ? number_format($totalYearRevenue / $totalYearSales, 0, ',', '.') : 0 }}
+                                                            </div>
+                                                            <small class="text-muted">Rata-rata Harga</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Visual Chart (Optional) --}}
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h6 class="card-title mb-0">
+                                                        <i class="bi bi-bar-chart me-2"></i>
+                                                        Grafik Penjualan Bulanan
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <canvas id="monthlyChart" height="80"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- Per Page and Filter Info for Ringkasan --}}
                     <div class="p-2 bg-light border-bottom">
                         <div class="d-flex align-items-center justify-content-between">
@@ -565,8 +684,95 @@
 @endpush
 
 @push('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script>
-        // Reset Filter Function
+        // Chart for monthly breakdown
+        @if ($activeTab === 'ringkasan' && $barang_filter && $bulan === 'all' && $tahun && count($monthlyBreakdown) > 0)
+            document.addEventListener('DOMContentLoaded', function() {
+                const ctx = document.getElementById('monthlyChart');
+                if (ctx) {
+                    const monthNames = @json(array_values($monthNames));
+                    const monthlyData = @json($monthlyBreakdown);
+
+                    // Prepare data for all 12 months
+                    const salesData = [];
+                    const revenueData = [];
+
+                    for (let month = 1; month <= 12; month++) {
+                        const data = monthlyData[month] || null;
+                        salesData.push(data ? data.total_terjual : 0);
+                        revenueData.push(data ? data.total_pendapatan : 0);
+                    }
+
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: monthNames,
+                            datasets: [{
+                                    label: 'Unit Terjual',
+                                    data: salesData,
+                                    backgroundColor: 'rgba(25, 135, 84, 0.7)',
+                                    borderColor: 'rgba(25, 135, 84, 1)',
+                                    borderWidth: 1,
+                                    yAxisID: 'y'
+                                },
+                                {
+                                    label: 'Pendapatan (dalam ribuan)',
+                                    data: revenueData.map(val => val / 1000), // Convert to thousands
+                                    backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                                    borderColor: 'rgba(13, 110, 253, 1)',
+                                    borderWidth: 1,
+                                    type: 'line',
+                                    yAxisID: 'y1'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Penjualan Bulanan {{ $barang_filter }} - {{ $tahun }}'
+                                },
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'left',
+                                    title: {
+                                        display: true,
+                                        text: 'Unit Terjual'
+                                    }
+                                },
+                                y1: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'right',
+                                    title: {
+                                        display: true,
+                                        text: 'Pendapatan (Ribuan Rupiah)'
+                                    },
+                                    grid: {
+                                        drawOnChartArea: false,
+                                    }
+                                }
+                            },
+                            interaction: {
+                                intersect: false,
+                                mode: 'index'
+                            }
+                        }
+                    });
+                }
+            });
+        @endif
+
+        // Existing scripts...
         document.addEventListener('DOMContentLoaded', function() {
             const resetBtn = document.getElementById('resetFilter');
             if (resetBtn) {

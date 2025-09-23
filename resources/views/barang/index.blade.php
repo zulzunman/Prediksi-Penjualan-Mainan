@@ -233,7 +233,6 @@
                                             </div>
                                             <div>
                                                 <div class="fw-semibold">{{ $b->nama_barang }}</div>
-                                                <small class="text-muted">ID: {{ $b->id }}</small>
                                             </div>
                                         </div>
                                     </td>
@@ -557,7 +556,7 @@
         function deleteItem(id, name) {
             if (confirm(
                     `Apakah Anda yakin ingin menghapus barang "${name}"?\n\nData yang sudah dihapus tidak dapat dikembalikan.`
-                    )) {
+                )) {
                 // Create form and submit
                 const form = document.createElement('form');
                 form.method = 'POST';
@@ -578,7 +577,7 @@
 
             if (confirm(
                     `Apakah Anda yakin ingin menghapus ${checkedBoxes.length} barang yang dipilih?\n\nData yang sudah dihapus tidak dapat dikembalikan.`
-                    )) {
+                )) {
                 showToast('Fitur bulk delete akan diimplementasikan', 'info');
             }
         }

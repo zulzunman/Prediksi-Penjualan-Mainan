@@ -289,43 +289,40 @@
                     </a>
                 </div>
 
-                @if (Auth::check() && Auth::user()->role == 'admin')
-                    <div class="menu-item">
-                        <a href="{{ route('barang.index') }}"
-                            class="menu-link {{ request()->is('barang*') ? 'active' : '' }}">
-                            <i class="bi bi-box-seam"></i>
-                            <span>Barang</span>
-                        </a>
-                    </div>
-                @endif
+                <!-- Semua admin bisa akses barang -->
+                <div class="menu-item">
+                    <a href="{{ route('barang.index') }}"
+                        class="menu-link {{ request()->is('barang*') ? 'active' : '' }}">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Barang</span>
+                    </a>
+                </div>
 
-                @if (Auth::check() && Auth::user()->role == 'pemilik')
-                    <div class="menu-item">
-                        <a href="{{ route('penjualan.index') }}"
-                            class="menu-link {{ request()->is('penjualan*') ? 'active' : '' }}">
-                            <i class="bi bi-cart3"></i>
-                            <span>Penjualan</span>
-                        </a>
-                    </div>
-                @endif
+                <!-- Semua admin bisa akses penjualan -->
+                <div class="menu-item">
+                    <a href="{{ route('penjualan.index') }}"
+                        class="menu-link {{ request()->is('penjualan*') ? 'active' : '' }}">
+                        <i class="bi bi-cart3"></i>
+                        <span>Penjualan</span>
+                    </a>
+                </div>
 
-                {{-- @if (Auth::check() && in_array(Auth::user()->role, ['admin', 'pemilik']))
-                    <div class="menu-item">
-                        <a href="#" class="menu-link">
-                            <i class="bi bi-people"></i>
-                            <span>Users</span>
-                        </a>
-                    </div>
-
-                    <div class="menu-item">
-                        <a href="#" class="menu-link">
-                            <i class="bi bi-bar-chart"></i>
-                            <span>Reports</span>
-                        </a>
-                    </div>
-                @endif --}}
-
+                {{-- Bisa ditambahkan menu lain sesuai kebutuhan --}}
                 {{-- <div class="menu-item">
+                    <a href="#" class="menu-link">
+                        <i class="bi bi-people"></i>
+                        <span>Users</span>
+                    </a>
+                </div>
+
+                <div class="menu-item">
+                    <a href="#" class="menu-link">
+                        <i class="bi bi-bar-chart"></i>
+                        <span>Reports</span>
+                    </a>
+                </div>
+
+                <div class="menu-item">
                     <a href="#" class="menu-link">
                         <i class="bi bi-gear"></i>
                         <span>Settings</span>

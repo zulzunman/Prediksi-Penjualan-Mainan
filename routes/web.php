@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PrediksiController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -31,4 +32,11 @@ Route::middleware(['auth'])->group(function () {
     ->name('penjualan.template');
     Route::post('/penjualan-import', [PenjualanController::class, 'import'])
         ->name('penjualan.import');
+
+
+    // Route khusus HARUS di atas route resource
+    Route::get('prediksi/get-available-data', [PrediksiController::class, 'getAvailableData']);
+
+    Route::resource('prediksi', PrediksiController::class);
+
 });

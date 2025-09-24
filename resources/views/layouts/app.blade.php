@@ -9,6 +9,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <style>
             :root {
                 --sidebar-width: 280px;
@@ -304,6 +305,14 @@
                         class="menu-link {{ request()->is('penjualan*') ? 'active' : '' }}">
                         <i class="bi bi-cart3"></i>
                         <span>Penjualan</span>
+                    </a>
+                </div>
+
+                <div class="menu-item">
+                    <a href="{{ route('prediksi.index') }}"
+                        class="menu-link {{ request()->is('prediksi*') ? 'active' : '' }}">
+                        <i class="bi bi-graph-up"></i>
+                        <span>Prediksi</span>
                     </a>
                 </div>
 

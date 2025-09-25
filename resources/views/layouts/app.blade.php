@@ -7,6 +7,10 @@
         <title>@yield('title', 'Aplikasi CRUD Barang')</title>
         <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Tambahkan ini di head section layout Anda (layouts/app.blade.php) -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <!-- Atau jika menggunakan CDN alternatif -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -341,6 +345,7 @@
         </style>
         @stack('styles')
     </head>
+    @stack('scripts')
 
     <body>
         <!-- Header -->

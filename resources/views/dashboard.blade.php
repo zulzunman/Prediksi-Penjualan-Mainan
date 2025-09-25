@@ -37,6 +37,17 @@
                 </div>
             </div>
         </div>
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div class="text-end">
+                    <p class="stat-value">{{ $totalPrediksi ?? '150' }}</p>
+                    <p class="stat-label">Total Prediksi</p>
+                </div>
+            </div>
+        </div>
 
         <div class="stat-card">
             <div class="stat-header">
@@ -50,7 +61,7 @@
             </div>
         </div>
 
-        <div class="stat-card">
+        {{-- <div class="stat-card">
             <div class="stat-header">
                 <div class="stat-icon">
                     <i class="bi bi-currency-dollar"></i>
@@ -60,7 +71,7 @@
                     <p class="stat-label">Total Pendapatan</p>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <div class="stat-card">
             <div class="stat-header">
@@ -75,95 +86,6 @@
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-lightning-charge text-warning me-2"></i>
-                        Aksi Cepat
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <a href="{{ route('barang.create') }}" class="btn btn-outline-primary w-100 py-3">
-                                <i class="bi bi-plus-circle me-2"></i>
-                                Tambah Barang
-                            </a>
-                        </div>
-                        <div class="col-md-6">
-                            <a href="{{ route('penjualan.create') }}" class="btn btn-outline-success w-100 py-3">
-                                <i class="bi bi-cart-plus me-2"></i>
-                                Input Penjualan
-                            </a>
-                        </div>
-                        <div class="col-md-6">
-                            <button onclick="generateReport()" class="btn btn-outline-info w-100 py-3">
-                                <i class="bi bi-file-earmark-text me-2"></i>
-                                Generate Laporan
-                            </button>
-                        </div>
-                        <div class="col-md-6">
-                            <a href="{{ route('prediksi.index') }}" class="btn btn-outline-secondary w-100 py-3">
-                                <i class="bi bi-graph-up me-2"></i>
-                                Lihat Prediksi
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-clock-history text-info me-2"></i>
-                        Aktivitas Terbaru
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="activity-item mb-3">
-                        <div class="d-flex align-items-center">
-                            <div class="activity-icon bg-success bg-opacity-10 text-success rounded-circle p-2 me-3">
-                                <i class="bi bi-plus-circle"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <p class="mb-0 fw-medium">Barang baru ditambahkan</p>
-                                <small class="text-muted">2 jam yang lalu</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="activity-item mb-3">
-                        <div class="d-flex align-items-center">
-                            <div class="activity-icon bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-3">
-                                <i class="bi bi-cart-check"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <p class="mb-0 fw-medium">Penjualan berhasil</p>
-                                <small class="text-muted">3 jam yang lalu</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="d-flex align-items-center">
-                            <div class="activity-icon bg-warning bg-opacity-10 text-warning rounded-circle p-2 me-3">
-                                <i class="bi bi-exclamation-triangle"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <p class="mb-0 fw-medium">Stok hampir habis</p>
-                                <small class="text-muted">5 jam yang lalu</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @push('scripts')

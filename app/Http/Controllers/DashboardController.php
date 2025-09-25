@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Barang;
 use App\Models\Penjualan;
 use App\Models\User;
+use App\Models\Prediksi;
 
 class DashboardController extends Controller
 {
@@ -20,13 +21,17 @@ class DashboardController extends Controller
             $data['totalBarang'] = Barang::count();
         }
 
-        if ($user->role == 'pemilik') {
-            $data['totalPenjualan'] = Penjualan::count();
-            $data['totalPendapatan'] = Penjualan::sum('total_harga');
-        }
+        // if ($user->role == 'pemilik') {
+        //     $data['totalPenjualan'] = Penjualan::count();
+        //     $data['totalPendapatan'] = Penjualan::sum('total_harga');
+        // }
 
         if ($user->role == 'admin') {
             $data['totalUsers'] = User::count();
+        }
+
+        if ($user->role == 'admin') {
+            $data['totalPrediksi'] = Prediksi::count();
         }
 
         // Get recent activities (you can customize this based on your needs)

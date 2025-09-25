@@ -3,218 +3,396 @@
     aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createPrediksiModalLabel">Buat Prediksi Baru</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="{{ route('prediksi.store') }}" method="POST" id="prediksiForm">
+            <form action="{{ route('prediksi.store') }}" method="POST" id="prediksiForm" class="needs-validation"
+                novalidate>
                 @csrf
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="createPrediksiModalLabel">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        Tambah Prediksi Baru
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
                 <div class="modal-body">
-                    <div class="form-group mb-3">
-                        <label for="barang_id" class="form-label">Pilih Barang</label>
-                        <select name="barang_id" id="barang_id" class="form-control" required>
-                            <option value="">-- Pilih Barang --</option>
-                            @foreach ($barang as $b)
-                                <option value="{{ $b->id }}" {{ old('barang_id') == $b->id ? 'selected' : '' }}>
-                                    {{ $b->nama_barang }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('barang_id')
-                            <div class="text-danger small">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label class="form-label">Dataset Periode</label>
-                        <div class="border rounded p-3" style="background-color: #f8f9fa; min-height: 150px;">
-                            <!-- Data Info Section -->
-                            <div id="dataInfoSection" style="display: none;">
-                                <div class="alert alert-info mb-3">
-                                    <strong>Informasi Dataset:</strong><br>
-                                    <span id="totalDataText"></span>
-                                </div>
-
-                                <!-- Button Options -->
-                                <div class="mb-3">
-                                    <h6 class="mb-2">Pilih Dataset:</h6>
-                                    <div class="d-grid gap-2 d-md-flex">
-                                        <button type="button" class="btn btn-primary" id="useAllDataBtn"
-                                            onclick="selectAllData()">
-                                            <i class="fas fa-database"></i> Gunakan Semua Data
-                                        </button>
-                                        <button type="button" class="btn btn-outline-primary" id="selectRangeBtn"
-                                            onclick="showRangeSelection()">
-                                            <i class="fas fa-filter"></i> Pilih Range Data
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Range Selection -->
-                                <div id="rangeSelectionArea" style="display: none;">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Dari Bulan:</label>
-                                            <select class="form-control" id="startMonthSelect">
-                                                <option value="">-- Pilih Bulan Mulai --</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Sampai Bulan:</label>
-                                            <select class="form-control" id="endMonthSelect">
-                                                <option value="">-- Pilih Bulan Akhir --</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-2">
-                                        <button type="button" class="btn btn-success btn-sm"
-                                            onclick="applyRangeSelection()">
-                                            <i class="fas fa-check"></i> Terapkan Pilihan
-                                        </button>
-                                        <button type="button" class="btn btn-secondary btn-sm"
-                                            onclick="cancelRangeSelection()">
-                                            <i class="fas fa-times"></i> Batal
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Selected Dataset Info -->
-                                <div id="selectedDatasetInfo" class="mt-3 p-2 bg-success text-white rounded small"
-                                    style="display: none;">
-                                    <strong>Dataset Terpilih:</strong> <span id="selectedDatasetText"></span><br>
-                                    <span id="selectedCountText"></span>
-                                </div>
-                            </div>
-
-                            <div id="noBarangSelected" class="text-center text-muted py-4">
-                                <i class="fas fa-info-circle"></i><br>
-                                Pilih barang terlebih dahulu untuk melihat data yang tersedia
+                    <div class="row g-3">
+                        <!-- Pilih Barang -->
+                        <div class="col-12">
+                            <label for="barang_id" class="form-label fw-semibold">
+                                <i class="bi bi-box text-primary me-1"></i>
+                                Pilih Barang <span class="text-danger">*</span>
+                            </label>
+                            <select name="barang_id" id="barang_id"
+                                class="form-select @error('barang_id') is-invalid @enderror" required>
+                                <option value="">-- Pilih Barang --</option>
+                                @foreach ($barang as $b)
+                                    <option value="{{ $b->id }}"
+                                        {{ old('barang_id') == $b->id ? 'selected' : '' }}>
+                                        {{ $b->nama_barang }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('barang_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="invalid-feedback">
+                                Barang harus dipilih
                             </div>
                         </div>
 
-                        <!-- Hidden inputs for form submission -->
-                        <input type="hidden" name="use_all_data" id="useAllDataInput" value="1">
-                        <input type="hidden" name="start_year" id="startYearInput">
-                        <input type="hidden" name="start_month" id="startMonthInput">
-                        <input type="hidden" name="end_year" id="endYearInput">
-                        <input type="hidden" name="end_month" id="endMonthInput">
+                        <!-- Dataset Periode -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-calendar-data text-info me-1"></i>
+                                Dataset Periode <span class="text-danger">*</span>
+                            </label>
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <!-- Data Info Section -->
+                                    <div id="dataInfoSection" style="display: none;">
+                                        <div class="alert alert-info border-0 mb-3">
+                                            <i class="bi bi-info-circle text-info me-2"></i>
+                                            <strong>Informasi Dataset:</strong><br>
+                                            <span id="totalDataText"></span>
+                                        </div>
 
-                        @error('start_year')
-                            <div class="text-danger small">{{ $message }}</div>
-                        @enderror
-                        @error('start_month')
-                            <div class="text-danger small">{{ $message }}</div>
-                        @enderror
-                        @error('end_year')
-                            <div class="text-danger small">{{ $message }}</div>
-                        @enderror
-                        @error('end_month')
-                            <div class="text-danger small">{{ $message }}</div>
-                        @enderror
-                    </div>
+                                        <!-- Button Options -->
+                                        <div class="mb-3">
+                                            <h6 class="mb-3 text-muted fw-semibold">Pilih Dataset:</h6>
+                                            <div class="d-grid gap-2 d-md-flex">
+                                                <button type="button" class="btn btn-outline-primary"
+                                                    id="useAllDataBtn" onclick="selectAllData()">
+                                                    <i class="bi bi-database me-2"></i>Gunakan Semua Data
+                                                </button>
+                                                <button type="button" class="btn btn-outline-primary"
+                                                    id="selectRangeBtn" onclick="showRangeSelection()">
+                                                    <i class="bi bi-funnel me-2"></i>Pilih Range Data
+                                                </button>
+                                            </div>
+                                        </div>
 
-                    <div class="form-group mb-3">
-                        <label for="periode" class="form-label">Jumlah Periode ke Depan</label>
-                        <input type="hidden" name="periode" value="3">
-                        <input type="text" class="form-control" value="3 Bulan ke Depan" readonly>
-                        <small class="form-text text-muted">Sistem akan memprediksi penjualan untuk 3 bulan ke
-                            depan</small>
-                    </div>
+                                        <!-- Range Selection -->
+                                        <div id="rangeSelectionArea" class="border rounded p-3 bg-white"
+                                            style="display: none;">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold">
+                                                        <i class="bi bi-calendar-check text-success me-1"></i>
+                                                        Dari Bulan:
+                                                    </label>
+                                                    <select class="form-select" id="startMonthSelect">
+                                                        <option value="">-- Pilih Bulan Mulai --</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold">
+                                                        <i class="bi bi-calendar-x text-danger me-1"></i>
+                                                        Sampai Bulan:
+                                                    </label>
+                                                    <select class="form-select" id="endMonthSelect">
+                                                        <option value="">-- Pilih Bulan Akhir --</option>
+                                                    </select>
+                                                </div>
+                                            </div>
 
-                    <div class="alert alert-info">
-                        <small>
-                            <strong>Informasi:</strong><br>
-                            - Sistem akan menggunakan metode Regresi Linear untuk prediksi<br>
-                            - Prediksi akan dilakukan untuk 3 bulan ke depan<br>
-                            - Pastikan dataset yang dipilih memiliki minimal 5 bulan data<br>
-                            - Hasil prediksi akan menampilkan nilai MAPE (Mean Absolute Percentage Error)
-                        </small>
+                                            <div class="mt-3 d-flex gap-2">
+                                                <button type="button" class="btn btn-success btn-sm"
+                                                    onclick="applyRangeSelection()">
+                                                    <i class="bi bi-check-circle me-1"></i>Terapkan Pilihan
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                    onclick="cancelRangeSelection()">
+                                                    <i class="bi bi-x-circle me-1"></i>Batal
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Selected Dataset Info -->
+                                        <div id="selectedDatasetInfo" class="alert alert-success border-0 mt-3"
+                                            style="display: none;">
+                                            <i class="bi bi-check-circle text-success me-2"></i>
+                                            <strong>Dataset Terpilih:</strong> <span
+                                                id="selectedDatasetText"></span><br>
+                                            <span id="selectedCountText"></span>
+                                        </div>
+                                    </div>
+
+                                    <div id="noBarangSelected" class="text-center text-muted py-4">
+                                        <i class="bi bi-info-circle display-6 text-muted mb-3"></i>
+                                        <p class="mb-0">Pilih barang terlebih dahulu untuk melihat data yang tersedia
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hidden inputs for form submission -->
+                            <input type="hidden" name="use_all_data" id="useAllDataInput" value="1">
+                            <input type="hidden" name="start_year" id="startYearInput">
+                            <input type="hidden" name="start_month" id="startMonthInput">
+                            <input type="hidden" name="end_year" id="endYearInput">
+                            <input type="hidden" name="end_month" id="endMonthInput">
+
+                            @error('start_year')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                            @error('start_month')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                            @error('end_year')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                            @error('end_month')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Periode Prediksi -->
+                        <div class="col-md-6">
+                            <label for="periode" class="form-label fw-semibold">
+                                <i class="bi bi-calendar-week text-warning me-1"></i>
+                                Periode Prediksi
+                            </label>
+                            <input type="hidden" name="periode" value="3">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-calendar-month text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control bg-light" value="3 Bulan ke Depan"
+                                    readonly>
+                                <span class="input-group-text">bulan</span>
+                            </div>
+                            <small class="form-text text-muted">Sistem akan memprediksi untuk 3 bulan ke depan</small>
+                        </div>
+
+                        <!-- Metode Prediksi (Read-only info) -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-gear text-secondary me-1"></i>
+                                Metode Prediksi
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-graph-up text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control bg-light" value="Regresi Linear" readonly>
+                            </div>
+                            <small class="form-text text-muted">Metode yang digunakan untuk prediksi</small>
+                        </div>
+
+                        <!-- Preview Card -->
+                        <div class="col-12">
+                            <div class="card bg-light border-0">
+                                <div class="card-header bg-transparent border-0 pb-0">
+                                    <h6 class="mb-0 fw-semibold">
+                                        <i class="bi bi-eye text-info me-1"></i>
+                                        Preview Prediksi
+                                    </h6>
+                                </div>
+                                <div class="card-body pt-2">
+                                    <div class="row text-center">
+                                        <div class="col-3">
+                                            <small class="text-muted d-block">Barang</small>
+                                            <span class="fw-semibold" id="preview-nama">-</span>
+                                        </div>
+                                        <div class="col-3">
+                                            <small class="text-muted d-block">Dataset</small>
+                                            <span class="fw-semibold" id="preview-dataset">-</span>
+                                        </div>
+                                        <div class="col-3">
+                                            <small class="text-muted d-block">Periode</small>
+                                            <span class="fw-semibold" id="preview-periode">3 Bulan</span>
+                                        </div>
+                                        <div class="col-3">
+                                            <small class="text-muted d-block">Metode</small>
+                                            <span class="fw-semibold" id="preview-metode">Regresi Linear</span>
+                                        </div>
+                                    </div>
+                                    <hr class="my-2">
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <small class="text-muted">Status Dataset:</small>
+                                            <div class="fw-bold fs-6" id="preview-status">
+                                                <span class="badge bg-secondary">Belum dipilih</span>
+                                            </div>
+                                        </div>
+                                        {{-- <div class="col-6">
+                                            <small class="text-muted">Estimasi Waktu:</small>
+                                            <div class="fw-semibold" id="preview-waktu">~2-5 detik</div>
+                                        </div> --}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informasi Penting -->
+                        <div class="col-12">
+                            <div class="alert alert-info border-0">
+                                <div class="d-flex">
+                                    <i class="bi bi-lightbulb text-info me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="alert-heading mb-2 fw-semibold">Informasi Penting</h6>
+                                        <ul class="mb-0 small lh-lg">
+                                            <li>Dataset minimal <strong>5 bulan data</strong> diperlukan untuk prediksi
+                                                yang akurat</li>
+                                            <li>Sistem akan menghitung <strong>MAPE</strong> (Mean Absolute Percentage
+                                                Error) untuk mengukur akurasi</li>
+                                            <li>Prediksi akan menghasilkan nilai untuk <strong>3 bulan ke depan</strong>
+                                            </li>
+                                            <li>Semakin banyak data historis, semakin akurat prediksi yang dihasilkan
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Buat Prediksi</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>
+                        Batal
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                        <i class="bi bi-check-circle me-1"></i>
+                        Buat Prediksi
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<style>
-    .month-option {
-        font-size: 14px;
-        padding: 5px 10px;
-    }
-
-    .alert-info {
-        background-color: #d1ecf1;
-        border-color: #bee5eb;
-        color: #0c5460;
-    }
-
-    .btn-outline-primary:hover {
-        color: #fff;
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
-
-    #rangeSelectionArea {
-        background-color: #f8f9fa;
-        padding: 15px;
-        border-radius: 5px;
-        border: 1px solid #dee2e6;
-    }
-</style>
-
 <script>
     let availableMonthsData = [];
-    let selectedDatasetType = 'all'; // 'all' or 'range'
+    let selectedDatasetType = 'all';
     let startMonth = null;
     let endMonth = null;
 
-    document.getElementById('barang_id').addEventListener('change', function() {
-        const barangId = this.value;
+    document.addEventListener('DOMContentLoaded', function() {
+        const barangSelect = document.getElementById('barang_id');
+        const submitBtn = document.getElementById('submitBtn');
 
-        if (!barangId) {
+        // Function untuk update preview
+        const updatePreview = () => {
+            const selectedOption = barangSelect.options[barangSelect.selectedIndex];
+            const nama = selectedOption.value ? selectedOption.text : '-';
+
+            document.getElementById('preview-nama').textContent = nama;
+
+            // Update dataset info
+            if (selectedDatasetType === 'all' && availableMonthsData.length > 0) {
+                let totalMonths = 0;
+                availableMonthsData.forEach(yearData => {
+                    yearData.months.forEach(monthData => {
+                        if (monthData.available) totalMonths++;
+                    });
+                });
+                document.getElementById('preview-dataset').textContent = `${totalMonths} bulan`;
+            } else if (selectedDatasetType === 'range') {
+                const selectedText = document.getElementById('selectedDatasetText').textContent;
+                const countText = document.getElementById('selectedCountText').textContent;
+                document.getElementById('preview-dataset').textContent = countText || 'Range dipilih';
+            } else {
+                document.getElementById('preview-dataset').textContent = '-';
+            }
+
+            // Update status
+            if (selectedOption.value && (selectedDatasetType === 'all' || selectedDatasetType ===
+                    'range')) {
+                document.getElementById('preview-status').innerHTML =
+                    '<span class="badge bg-success">Siap untuk prediksi</span>';
+            } else {
+                document.getElementById('preview-status').innerHTML =
+                    '<span class="badge bg-secondary">Belum siap</span>';
+            }
+        };
+
+        // Event listener untuk perubahan barang
+        barangSelect.addEventListener('change', function() {
+            const barangId = this.value;
+
+            if (!barangId) {
+                document.getElementById('dataInfoSection').style.display = 'none';
+                document.getElementById('noBarangSelected').style.display = 'block';
+                submitBtn.disabled = true;
+                resetDatasetSelection();
+                updatePreview();
+                return;
+            }
+
+            // Show loading
+            document.getElementById('noBarangSelected').innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mb-0">Memuat data yang tersedia...</p>
+            </div>
+        `;
+
+            // Fetch available data
+            fetch(`/prediksi/get-available-data?barang_id=${barangId}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Data received:', data);
+                    availableMonthsData = data;
+                    displayDataInfo();
+                    document.getElementById('dataInfoSection').style.display = 'block';
+                    document.getElementById('noBarangSelected').style.display = 'none';
+                    resetDatasetSelection();
+                    updatePreview();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('noBarangSelected').innerHTML = `
+                    <div class="text-center">
+                        <i class="bi bi-exclamation-triangle display-6 text-warning mb-3"></i>
+                        <p class="mb-0 text-danger">Error memuat data: ${error.message}</p>
+                    </div>
+                `;
+                });
+        });
+
+        // Reset form when modal is hidden
+        document.getElementById('createPrediksiModal').addEventListener('hidden.bs.modal', function() {
+            this.querySelector('form').reset();
+            this.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+            // Reset variables
+            availableMonthsData = [];
+            selectedDatasetType = 'all';
+            startMonth = null;
+            endMonth = null;
+
+            // Reset UI
             document.getElementById('dataInfoSection').style.display = 'none';
             document.getElementById('noBarangSelected').style.display = 'block';
-            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('noBarangSelected').innerHTML = `
+            <div class="text-center text-muted py-4">
+                <i class="bi bi-info-circle display-6 text-muted mb-3"></i>
+                <p class="mb-0">Pilih barang terlebih dahulu untuk melihat data yang tersedia</p>
+            </div>
+        `;
+
             resetDatasetSelection();
-            return;
-        }
+            updatePreview();
+        });
 
-        // Show loading
-        document.getElementById('noBarangSelected').innerHTML =
-            '<i class="fas fa-spinner fa-spin"></i><br>Memuat data...';
-
-        // Fetch available data
-        fetch(`/prediksi/get-available-data?barang_id=${barangId}`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Data received:', data);
-                availableMonthsData = data;
-                displayDataInfo();
-                document.getElementById('dataInfoSection').style.display = 'block';
-                document.getElementById('noBarangSelected').style.display = 'none';
-                resetDatasetSelection();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('noBarangSelected').innerHTML =
-                    `<i class="fas fa-exclamation-triangle text-warning"></i><br>Error memuat data: ${error.message}`;
-            });
+        // Initialize
+        updatePreview();
     });
 
     function displayDataInfo() {
@@ -250,10 +428,16 @@
             dateRange = `${startStr} - ${endStr}`;
         }
 
-        document.getElementById('totalDataText').innerHTML =
-            `Total <strong>${totalMonths}</strong> bulan data tersedia<br>
-             Periode: <strong>${dateRange}</strong><br>
-             ${totalMonths >= 5 ? '<span class="text-success">✓ Cukup untuk prediksi</span>' : '<span class="text-danger">⚠ Minimal 5 bulan diperlukan</span>'}`;
+        const statusClass = totalMonths >= 5 ? 'text-success' : 'text-danger';
+        const statusIcon = totalMonths >= 5 ? 'bi-check-circle' : 'bi-exclamation-triangle';
+        const statusText = totalMonths >= 5 ? 'Cukup untuk prediksi' : 'Minimal 5 bulan diperlukan';
+
+        document.getElementById('totalDataText').innerHTML = `
+        Total <strong>${totalMonths}</strong> bulan data tersedia<br>
+        Periode: <strong>${dateRange}</strong><br>
+        <i class="bi ${statusIcon} me-1"></i>
+        <span class="${statusClass}">${statusText}</span>
+    `;
 
         // Populate month selectors
         populateMonthSelectors();
@@ -311,6 +495,7 @@
         document.getElementById('selectedDatasetInfo').style.display = 'block';
 
         document.getElementById('submitBtn').disabled = totalMonths < 5;
+        updatePreview();
     }
 
     function showRangeSelection() {
@@ -323,6 +508,7 @@
 
         document.getElementById('selectedDatasetInfo').style.display = 'none';
         document.getElementById('submitBtn').disabled = true;
+        updatePreview();
     }
 
     function applyRangeSelection() {
@@ -383,6 +569,7 @@
         document.getElementById('rangeSelectionArea').style.display = 'none';
 
         document.getElementById('submitBtn').disabled = false;
+        updatePreview();
     }
 
     function cancelRangeSelection() {
@@ -418,5 +605,46 @@
         document.getElementById('endMonthInput').value = '';
 
         document.getElementById('submitBtn').disabled = true;
+    }
+
+    // Function to update preview when dataset changes
+    function updatePreview() {
+        if (typeof document.getElementById('preview-nama') !== 'undefined') {
+            const barangSelect = document.getElementById('barang_id');
+            const selectedOption = barangSelect.options[barangSelect.selectedIndex];
+            const nama = selectedOption.value ? selectedOption.text : '-';
+
+            document.getElementById('preview-nama').textContent = nama;
+
+            // Update dataset info in preview
+            if (selectedDatasetType === 'all' && availableMonthsData.length > 0) {
+                let totalMonths = 0;
+                availableMonthsData.forEach(yearData => {
+                    yearData.months.forEach(monthData => {
+                        if (monthData.available) totalMonths++;
+                    });
+                });
+                document.getElementById('preview-dataset').textContent = `${totalMonths} bulan`;
+            } else if (selectedDatasetType === 'range') {
+                const countText = document.getElementById('selectedCountText') ?
+                    document.getElementById('selectedCountText').textContent : 'Range dipilih';
+                document.getElementById('preview-dataset').textContent = countText;
+            } else {
+                document.getElementById('preview-dataset').textContent = '-';
+            }
+
+            // Update status
+            if (selectedOption.value && (selectedDatasetType === 'all' || selectedDatasetType === 'range')) {
+                const statusElement = document.getElementById('preview-status');
+                if (statusElement) {
+                    statusElement.innerHTML = '<span class="badge bg-success">Siap untuk prediksi</span>';
+                }
+            } else {
+                const statusElement = document.getElementById('preview-status');
+                if (statusElement) {
+                    statusElement.innerHTML = '<span class="badge bg-secondary">Belum siap</span>';
+                }
+            }
+        }
     }
 </script>

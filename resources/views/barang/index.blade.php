@@ -131,7 +131,7 @@
                             placeholder="Cari nama barang...">
                     </div>
                 </div>
-                <div class="col-md-3">
+                {{-- <div class="col-md-3">
                     <select id="statusFilter" class="form-select">
                         <option value="">Semua Status</option>
                         <option value="available">Stok Tersedia</option>
@@ -150,7 +150,7 @@
                             Grid
                         </button>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
@@ -163,7 +163,7 @@
                     <i class="bi bi-table me-2"></i>
                     Data Barang
                 </h6>
-                <div class="dropdown">
+                {{-- <div class="dropdown">
                     <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
                         data-bs-toggle="dropdown">
                         <i class="bi bi-three-dots-vertical"></i>
@@ -182,7 +182,7 @@
                                 <i class="bi bi-printer me-2"></i>Print
                             </a></li>
                     </ul>
-                </div>
+                </div> --}}
             </div>
         </div>
         <div class="card-body p-0">

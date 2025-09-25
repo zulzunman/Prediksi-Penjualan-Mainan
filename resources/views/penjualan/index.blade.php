@@ -8,7 +8,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-1 text-gray-800">
-                <i class="bi bi-graph-up text-success me-2"></i>
+                <i class="bi bi-graph-up text-primary me-2"></i>
                 Data Penjualan
             </h1>
             <p class="text-muted mb-0">Kelola dan pantau data penjualan toko Anda</p>
@@ -18,7 +18,7 @@
                 <i class="bi bi-cloud-upload me-2"></i>
                 Import Excel
             </button>
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
                 <i class="bi bi-plus-circle me-2"></i>
                 Tambah Penjualan
             </button>

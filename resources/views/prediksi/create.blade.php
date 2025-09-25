@@ -27,35 +27,63 @@
 
                     <div class="form-group mb-3">
                         <label class="form-label">Dataset Periode</label>
-                        <div class="border rounded p-3" style="background-color: #f8f9fa; min-height: 100px;">
-                            <div id="dateSelectionArea" style="display: none;">
-                                <!-- Year Selection -->
+                        <div class="border rounded p-3" style="background-color: #f8f9fa; min-height: 150px;">
+                            <!-- Data Info Section -->
+                            <div id="dataInfoSection" style="display: none;">
+                                <div class="alert alert-info mb-3">
+                                    <strong>Informasi Dataset:</strong><br>
+                                    <span id="totalDataText"></span>
+                                </div>
+
+                                <!-- Button Options -->
                                 <div class="mb-3">
-                                    <h6 class="mb-2">Pilih Tahun:</h6>
-                                    <div id="yearSelection" class="d-flex flex-wrap gap-2">
-                                        <!-- Years will be populated here -->
+                                    <h6 class="mb-2">Pilih Dataset:</h6>
+                                    <div class="d-grid gap-2 d-md-flex">
+                                        <button type="button" class="btn btn-primary" id="useAllDataBtn"
+                                            onclick="selectAllData()">
+                                            <i class="fas fa-database"></i> Gunakan Semua Data
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary" id="selectRangeBtn"
+                                            onclick="showRangeSelection()">
+                                            <i class="fas fa-filter"></i> Pilih Range Data
+                                        </button>
                                     </div>
                                 </div>
 
-                                <!-- Month Selection -->
-                                <div id="monthSelectionWrapper" style="display: none;">
-                                    <h6 class="mb-2">Pilih Bulan Mulai:</h6>
-                                    <div id="monthSelection" class="row g-2">
-                                        <!-- Months will be populated here -->
+                                <!-- Range Selection -->
+                                <div id="rangeSelectionArea" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Dari Bulan:</label>
+                                            <select class="form-control" id="startMonthSelect">
+                                                <option value="">-- Pilih Bulan Mulai --</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Sampai Bulan:</label>
+                                            <select class="form-control" id="endMonthSelect">
+                                                <option value="">-- Pilih Bulan Akhir --</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn-success btn-sm"
+                                            onclick="applyRangeSelection()">
+                                            <i class="fas fa-check"></i> Terapkan Pilihan
+                                        </button>
+                                        <button type="button" class="btn btn-secondary btn-sm"
+                                            onclick="cancelRangeSelection()">
+                                            <i class="fas fa-times"></i> Batal
+                                        </button>
                                     </div>
                                 </div>
 
-                                <!-- Selected Info -->
-                                <div id="selectedInfo" class="mt-3 p-2 bg-info text-white rounded small"
+                                <!-- Selected Dataset Info -->
+                                <div id="selectedDatasetInfo" class="mt-3 p-2 bg-success text-white rounded small"
                                     style="display: none;">
-                                    <strong>Dataset dipilih:</strong> <span id="selectedText"></span><br>
-                                    <span id="dataCountText"></span>
-                                </div>
-
-                                <!-- Reset Button -->
-                                <div class="mt-2">
-                                    <button type="button" class="btn btn-sm btn-secondary"
-                                        onclick="resetSelection()">Reset Pilihan</button>
+                                    <strong>Dataset Terpilih:</strong> <span id="selectedDatasetText"></span><br>
+                                    <span id="selectedCountText"></span>
                                 </div>
                             </div>
 
@@ -66,13 +94,22 @@
                         </div>
 
                         <!-- Hidden inputs for form submission -->
-                        <input type="hidden" name="tahun_dataset" id="selectedYear">
-                        <input type="hidden" name="bulan_dataset" id="selectedMonth">
+                        <input type="hidden" name="use_all_data" id="useAllDataInput" value="1">
+                        <input type="hidden" name="start_year" id="startYearInput">
+                        <input type="hidden" name="start_month" id="startMonthInput">
+                        <input type="hidden" name="end_year" id="endYearInput">
+                        <input type="hidden" name="end_month" id="endMonthInput">
 
-                        @error('tahun_dataset')
+                        @error('start_year')
                             <div class="text-danger small">{{ $message }}</div>
                         @enderror
-                        @error('bulan_dataset')
+                        @error('start_month')
+                            <div class="text-danger small">{{ $message }}</div>
+                        @enderror
+                        @error('end_year')
+                            <div class="text-danger small">{{ $message }}</div>
+                        @enderror
+                        @error('end_month')
                             <div class="text-danger small">{{ $message }}</div>
                         @enderror
                     </div>
@@ -90,9 +127,8 @@
                             <strong>Informasi:</strong><br>
                             - Sistem akan menggunakan metode Regresi Linear untuk prediksi<br>
                             - Prediksi akan dilakukan untuk 3 bulan ke depan<br>
-                            - Pastikan barang yang dipilih memiliki data penjualan minimal 5 bulan<br>
-                            - Hasil prediksi akan menampilkan nilai MAPE (Mean Absolute Percentage Error)<br>
-                            - Pilih bulan mulai untuk menggunakan data dari bulan tersebut hingga data terbaru
+                            - Pastikan dataset yang dipilih memiliki minimal 5 bulan data<br>
+                            - Hasil prediksi akan menampilkan nilai MAPE (Mean Absolute Percentage Error)
                         </small>
                     </div>
                 </div>
@@ -106,49 +142,45 @@
 </div>
 
 <style>
-    .year-btn,
-    .month-btn {
-        min-width: 60px;
+    .month-option {
         font-size: 14px;
+        padding: 5px 10px;
     }
 
-    .month-btn {
-        min-width: 50px;
+    .alert-info {
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+        color: #0c5460;
     }
 
-    .year-btn.selected,
-    .month-btn.selected {
-        background-color: #6f42c1 !important;
-        border-color: #6f42c1 !important;
+    .btn-outline-primary:hover {
+        color: #fff;
+        background-color: #0d6efd;
+        border-color: #0d6efd;
     }
 
-    .month-btn:disabled {
-        background-color: #e9ecef;
-        border-color: #dee2e6;
-        color: #6c757d;
-        text-decoration: line-through;
-    }
-
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
+    #rangeSelectionArea {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
     }
 </style>
 
 <script>
-    let availableData = [];
-    let selectedYear = null;
-    let selectedMonth = null;
+    let availableMonthsData = [];
+    let selectedDatasetType = 'all'; // 'all' or 'range'
+    let startMonth = null;
+    let endMonth = null;
 
     document.getElementById('barang_id').addEventListener('change', function() {
         const barangId = this.value;
 
         if (!barangId) {
-            document.getElementById('dateSelectionArea').style.display = 'none';
+            document.getElementById('dataInfoSection').style.display = 'none';
             document.getElementById('noBarangSelected').style.display = 'block';
             document.getElementById('submitBtn').disabled = true;
-            resetSelection();
+            resetDatasetSelection();
             return;
         }
 
@@ -171,12 +203,12 @@
                 return response.json();
             })
             .then(data => {
-                console.log('Data received:', data); // Debug log
-                availableData = data;
-                displayYearSelection();
-                document.getElementById('dateSelectionArea').style.display = 'block';
+                console.log('Data received:', data);
+                availableMonthsData = data;
+                displayDataInfo();
+                document.getElementById('dataInfoSection').style.display = 'block';
                 document.getElementById('noBarangSelected').style.display = 'none';
-                resetSelection();
+                resetDatasetSelection();
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -185,126 +217,206 @@
             });
     });
 
-    function displayYearSelection() {
-        const yearContainer = document.getElementById('yearSelection');
-        yearContainer.innerHTML = '';
+    function displayDataInfo() {
+        let totalMonths = 0;
+        let dateRange = '';
+        let earliestDate = null;
+        let latestDate = null;
 
-        availableData.forEach(yearData => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'btn btn-outline-primary year-btn';
-            button.textContent = yearData.year;
-            button.onclick = () => selectYear(yearData.year);
-            yearContainer.appendChild(button);
-        });
-    }
+        // Calculate total available months and date range
+        availableMonthsData.forEach(yearData => {
+            yearData.months.forEach(monthData => {
+                if (monthData.available) {
+                    totalMonths++;
+                    const currentDate = new Date(yearData.year, monthData.number - 1);
 
-    function selectYear(year) {
-        selectedYear = year;
-        selectedMonth = null;
-
-        // Update year button states
-        document.querySelectorAll('.year-btn').forEach(btn => {
-            btn.classList.toggle('selected', btn.textContent == year);
-        });
-
-        // Display month selection
-        displayMonthSelection(year);
-        document.getElementById('monthSelectionWrapper').style.display = 'block';
-        updateSelectedInfo();
-    }
-
-    function displayMonthSelection(year) {
-        const monthContainer = document.getElementById('monthSelection');
-        monthContainer.innerHTML = '';
-
-        const yearData = availableData.find(data => data.year == year);
-        if (!yearData) return;
-
-        yearData.months.forEach(monthData => {
-            const colDiv = document.createElement('div');
-            colDiv.className = 'col-3';
-
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'btn btn-outline-secondary month-btn w-100';
-            button.textContent = monthData.name;
-            button.disabled = !monthData.available;
-
-            if (monthData.available) {
-                button.onclick = () => selectMonth(monthData.number);
-            }
-
-            colDiv.appendChild(button);
-            monthContainer.appendChild(colDiv);
-        });
-    }
-
-    function selectMonth(month) {
-        selectedMonth = month;
-
-        // Update month button states
-        document.querySelectorAll('.month-btn:not(:disabled)').forEach(btn => {
-            btn.classList.remove('selected');
-        });
-
-        event.target.classList.add('selected');
-        updateSelectedInfo();
-    }
-
-    function updateSelectedInfo() {
-        const selectedInfo = document.getElementById('selectedInfo');
-        const selectedText = document.getElementById('selectedText');
-        const dataCountText = document.getElementById('dataCountText');
-        const submitBtn = document.getElementById('submitBtn');
-
-        // Update hidden inputs
-        document.getElementById('selectedYear').value = selectedYear || '';
-        document.getElementById('selectedMonth').value = selectedMonth || '';
-
-        if (selectedYear) {
-            let text = `Tahun ${selectedYear}`;
-            if (selectedMonth) {
-                const monthNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-                ];
-                text += ` mulai dari ${monthNames[selectedMonth]}`;
-            }
-            selectedText.textContent = text;
-
-            // Count available data
-            const yearData = availableData.find(data => data.year == selectedYear);
-            let monthCount = 0;
-            if (yearData) {
-                if (selectedMonth) {
-                    monthCount = yearData.months.filter(m => m.number >= selectedMonth && m.available).length;
-                } else {
-                    monthCount = yearData.months.filter(m => m.available).length;
+                    if (!earliestDate || currentDate < earliestDate) {
+                        earliestDate = currentDate;
+                    }
+                    if (!latestDate || currentDate > latestDate) {
+                        latestDate = currentDate;
+                    }
                 }
-            }
+            });
+        });
 
-            dataCountText.textContent =
-                `Tersedia ${monthCount} bulan data ${monthCount >= 5 ? '✓' : '(minimal 5 bulan)'}`;
-            selectedInfo.style.display = 'block';
+        if (earliestDate && latestDate) {
+            const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
 
-            // Enable submit if enough data
-            submitBtn.disabled = monthCount < 5;
-        } else {
-            selectedInfo.style.display = 'none';
-            submitBtn.disabled = true;
+            const startStr = `${monthNames[earliestDate.getMonth()]} ${earliestDate.getFullYear()}`;
+            const endStr = `${monthNames[latestDate.getMonth()]} ${latestDate.getFullYear()}`;
+            dateRange = `${startStr} - ${endStr}`;
         }
+
+        document.getElementById('totalDataText').innerHTML =
+            `Total <strong>${totalMonths}</strong> bulan data tersedia<br>
+             Periode: <strong>${dateRange}</strong><br>
+             ${totalMonths >= 5 ? '<span class="text-success">✓ Cukup untuk prediksi</span>' : '<span class="text-danger">⚠ Minimal 5 bulan diperlukan</span>'}`;
+
+        // Populate month selectors
+        populateMonthSelectors();
     }
 
-    function resetSelection() {
-        selectedYear = null;
-        selectedMonth = null;
+    function populateMonthSelectors() {
+        const startSelect = document.getElementById('startMonthSelect');
+        const endSelect = document.getElementById('endMonthSelect');
 
-        document.querySelectorAll('.year-btn').forEach(btn => btn.classList.remove('selected'));
-        document.querySelectorAll('.month-btn').forEach(btn => btn.classList.remove('selected'));
-        document.getElementById('monthSelectionWrapper').style.display = 'none';
-        document.getElementById('selectedInfo').style.display = 'none';
-        document.getElementById('selectedYear').value = '';
-        document.getElementById('selectedMonth').value = '';
+        startSelect.innerHTML = '<option value="">-- Pilih Bulan Mulai --</option>';
+        endSelect.innerHTML = '<option value="">-- Pilih Bulan Akhir --</option>';
+
+        const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+
+        availableMonthsData.forEach(yearData => {
+            yearData.months.forEach(monthData => {
+                if (monthData.available) {
+                    const value = `${yearData.year}-${monthData.number}`;
+                    const text = `${monthNames[monthData.number - 1]} ${yearData.year}`;
+
+                    startSelect.innerHTML += `<option value="${value}">${text}</option>`;
+                    endSelect.innerHTML += `<option value="${value}">${text}</option>`;
+                }
+            });
+        });
+    }
+
+    function selectAllData() {
+        selectedDatasetType = 'all';
+        document.getElementById('rangeSelectionArea').style.display = 'none';
+        document.getElementById('useAllDataBtn').classList.add('btn-primary');
+        document.getElementById('useAllDataBtn').classList.remove('btn-outline-primary');
+        document.getElementById('selectRangeBtn').classList.add('btn-outline-primary');
+        document.getElementById('selectRangeBtn').classList.remove('btn-primary');
+
+        // Update form inputs
+        document.getElementById('useAllDataInput').value = '1';
+        document.getElementById('startYearInput').value = '';
+        document.getElementById('startMonthInput').value = '';
+        document.getElementById('endYearInput').value = '';
+        document.getElementById('endMonthInput').value = '';
+
+        // Show selected info
+        let totalMonths = 0;
+        availableMonthsData.forEach(yearData => {
+            yearData.months.forEach(monthData => {
+                if (monthData.available) totalMonths++;
+            });
+        });
+
+        document.getElementById('selectedDatasetText').textContent = 'Semua data yang tersedia';
+        document.getElementById('selectedCountText').textContent = `${totalMonths} bulan data`;
+        document.getElementById('selectedDatasetInfo').style.display = 'block';
+
+        document.getElementById('submitBtn').disabled = totalMonths < 5;
+    }
+
+    function showRangeSelection() {
+        selectedDatasetType = 'range';
+        document.getElementById('rangeSelectionArea').style.display = 'block';
+        document.getElementById('selectRangeBtn').classList.add('btn-primary');
+        document.getElementById('selectRangeBtn').classList.remove('btn-outline-primary');
+        document.getElementById('useAllDataBtn').classList.add('btn-outline-primary');
+        document.getElementById('useAllDataBtn').classList.remove('btn-primary');
+
+        document.getElementById('selectedDatasetInfo').style.display = 'none';
+        document.getElementById('submitBtn').disabled = true;
+    }
+
+    function applyRangeSelection() {
+        const startValue = document.getElementById('startMonthSelect').value;
+        const endValue = document.getElementById('endMonthSelect').value;
+
+        if (!startValue || !endValue) {
+            alert('Pilih bulan mulai dan bulan akhir terlebih dahulu');
+            return;
+        }
+
+        const [startYear, startMonthNum] = startValue.split('-');
+        const [endYear, endMonthNum] = endValue.split('-');
+
+        const startDate = new Date(parseInt(startYear), parseInt(startMonthNum) - 1);
+        const endDate = new Date(parseInt(endYear), parseInt(endMonthNum) - 1);
+
+        if (startDate > endDate) {
+            alert('Bulan mulai tidak boleh lebih besar dari bulan akhir');
+            return;
+        }
+
+        // Count months in range
+        let monthsInRange = 0;
+        availableMonthsData.forEach(yearData => {
+            yearData.months.forEach(monthData => {
+                if (monthData.available) {
+                    const currentDate = new Date(yearData.year, monthData.number - 1);
+                    if (currentDate >= startDate && currentDate <= endDate) {
+                        monthsInRange++;
+                    }
+                }
+            });
+        });
+
+        if (monthsInRange < 5) {
+            alert('Range yang dipilih harus memiliki minimal 5 bulan data');
+            return;
+        }
+
+        // Update form inputs
+        document.getElementById('useAllDataInput').value = '0';
+        document.getElementById('startYearInput').value = startYear;
+        document.getElementById('startMonthInput').value = startMonthNum;
+        document.getElementById('endYearInput').value = endYear;
+        document.getElementById('endMonthInput').value = endMonthNum;
+
+        // Show selected info
+        const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+        const startText = `${monthNames[parseInt(startMonthNum) - 1]} ${startYear}`;
+        const endText = `${monthNames[parseInt(endMonthNum) - 1]} ${endYear}`;
+
+        document.getElementById('selectedDatasetText').textContent = `${startText} - ${endText}`;
+        document.getElementById('selectedCountText').textContent = `${monthsInRange} bulan data`;
+        document.getElementById('selectedDatasetInfo').style.display = 'block';
+        document.getElementById('rangeSelectionArea').style.display = 'none';
+
+        document.getElementById('submitBtn').disabled = false;
+    }
+
+    function cancelRangeSelection() {
+        document.getElementById('rangeSelectionArea').style.display = 'none';
+        document.getElementById('startMonthSelect').value = '';
+        document.getElementById('endMonthSelect').value = '';
+
+        // Reset to all data
+        selectAllData();
+    }
+
+    function resetDatasetSelection() {
+        selectedDatasetType = 'all';
+        startMonth = null;
+        endMonth = null;
+
+        document.getElementById('rangeSelectionArea').style.display = 'none';
+        document.getElementById('selectedDatasetInfo').style.display = 'none';
+        document.getElementById('startMonthSelect').value = '';
+        document.getElementById('endMonthSelect').value = '';
+
+        // Reset button states
+        document.getElementById('useAllDataBtn').classList.remove('btn-primary');
+        document.getElementById('useAllDataBtn').classList.add('btn-outline-primary');
+        document.getElementById('selectRangeBtn').classList.remove('btn-primary');
+        document.getElementById('selectRangeBtn').classList.add('btn-outline-primary');
+
+        // Reset form inputs
+        document.getElementById('useAllDataInput').value = '1';
+        document.getElementById('startYearInput').value = '';
+        document.getElementById('startMonthInput').value = '';
+        document.getElementById('endYearInput').value = '';
+        document.getElementById('endMonthInput').value = '';
+
         document.getElementById('submitBtn').disabled = true;
     }
 </script>

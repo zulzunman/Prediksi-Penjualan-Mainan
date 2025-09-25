@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Prediksi extends Model
 {
-    use HasFactory;
-
     protected $table = 'prediksi';
 
     protected $fillable = [
@@ -17,10 +14,13 @@ class Prediksi extends Model
         'periode',
         'hasil_prediksi',
         'mape',
+        'dataset_info'
     ];
 
     protected $casts = [
-        'hasil_prediksi' => 'array', // otomatis decode JSON ke array
+        'hasil_prediksi' => 'array',
+        'mape' => 'decimal:2',
+        'periode' => 'integer',
     ];
 
     public function barang()

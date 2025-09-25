@@ -21,6 +21,7 @@
                     <th>No</th>
                     <th>Barang</th>
                     <th>Metode</th>
+                    <th>Dataset Info</th>
                     <th>Periode</th>
                     <th>Hasil Prediksi</th>
                     <th>MAPE (%)</th>
@@ -34,6 +35,11 @@
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $p->barang->nama_barang ?? '-' }}</td>
                         <td>{{ $p->metode }}</td>
+                        <td>
+                            <small class="text-muted">
+                                {{ $p->dataset_info ?? 'Data tidak tersedia' }}
+                            </small>
+                        </td>
                         <td>{{ $p->periode }}</td>
                         <td>
                             @php
@@ -59,15 +65,20 @@
                             @endphp
 
                             @foreach ($items as $it)
-                                <div>{{ $it['label'] }} : {{ $it['nilai'] }}</div>
+                                <div class="small">{{ $it['label'] }} : <strong>{{ number_format($it['nilai']) }}</strong>
+                                </div>
                             @endforeach
                         </td>
-                        <td>{{ $p->mape }}</td>
+                        <td>
+                            <span class="badge bg-{{ $p->mape < 10 ? 'success' : ($p->mape < 20 ? 'warning' : 'danger') }}">
+                                {{ $p->mape }}%
+                            </span>
+                        </td>
                         <td>{{ $p->created_at->format('d-m-Y H:i') }}</td>
                         <td>
                             <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#showPrediksiModal{{ $p->id }}">
-                                Lihat Detail
+                                <i class="fas fa-eye"></i> Detail
                             </button>
                         </td>
                     </tr>

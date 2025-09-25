@@ -12,23 +12,38 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <style>
             :root {
-                --sidebar-width: 280px;
-                --header-height: 70px;
-                --primary-color: #2563eb;
-                --sidebar-bg: #1e293b;
-                --sidebar-hover: #334155;
+                --sidebar-width: 260px;
+                --header-height: 65px;
+                --primary-color: #6366f1;
+                --secondary-color: #8b5cf6;
+                --sidebar-bg: #ffffff;
+                --sidebar-border: #e5e7eb;
+                --sidebar-hover: #f3f4f6;
+                --sidebar-active: #eef2ff;
+                --text-primary: #1f2937;
+                --text-secondary: #6b7280;
+                --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+                --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+                --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            }
+
+            * {
+                box-sizing: border-box;
             }
 
             body {
-                background-color: #f8fafc;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f9fafb;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                margin: 0;
+                padding: 0;
             }
 
             /* Header Styles */
             .main-header {
                 height: var(--header-height);
-                background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                background: white;
+                border-bottom: 1px solid var(--sidebar-border);
+                box-shadow: var(--shadow-sm);
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -37,18 +52,31 @@
             }
 
             .header-brand {
-                font-size: 1.5rem;
-                font-weight: 700;
-                color: white !important;
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: var(--text-primary) !important;
                 text-decoration: none;
+                display: flex;
+                align-items: center;
+            }
+
+            .header-brand i {
+                color: var(--primary-color);
+                margin-right: 8px;
             }
 
             .user-profile {
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 50px;
-                padding: 8px 16px;
-                color: white;
-                border: 1px solid rgba(255, 255, 255, 0.2);
+                background: var(--sidebar-hover);
+                border-radius: 8px;
+                padding: 8px 12px;
+                color: var(--text-secondary);
+                border: 1px solid var(--sidebar-border);
+                font-size: 0.875rem;
+                transition: all 0.2s ease;
+            }
+
+            .user-profile:hover {
+                background: #e5e7eb;
             }
 
             /* Sidebar Styles */
@@ -56,169 +84,198 @@
                 width: var(--sidebar-width);
                 height: calc(100vh - var(--header-height));
                 background: var(--sidebar-bg);
+                border-right: 1px solid var(--sidebar-border);
                 position: fixed;
                 top: var(--header-height);
                 left: 0;
                 z-index: 999;
                 transition: all 0.3s ease;
-                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+                overflow-y: auto;
             }
 
             .sidebar-menu {
-                padding: 1.5rem 0;
+                padding: 1rem 0;
             }
 
             .menu-header {
-                color: #94a3b8;
+                color: var(--text-secondary);
                 font-size: 0.75rem;
                 font-weight: 600;
                 text-transform: uppercase;
-                letter-spacing: 1px;
-                padding: 0 1.5rem;
-                margin-bottom: 1rem;
+                letter-spacing: 0.5px;
+                padding: 0 1rem;
+                margin-bottom: 0.5rem;
             }
 
             .menu-item {
-                margin: 0.25rem 1rem;
+                margin: 2px 0.75rem;
             }
 
             .menu-link {
                 display: flex;
                 align-items: center;
-                padding: 0.75rem 1rem;
-                color: #cbd5e1;
+                padding: 0.6rem 0.75rem;
+                color: var(--text-secondary);
                 text-decoration: none;
-                border-radius: 8px;
-                transition: all 0.3s ease;
+                border-radius: 6px;
+                transition: all 0.2s ease;
                 font-weight: 500;
+                font-size: 0.875rem;
             }
 
             .menu-link:hover {
                 background: var(--sidebar-hover);
-                color: white;
-                transform: translateX(4px);
+                color: var(--text-primary);
             }
 
             .menu-link.active {
-                background: var(--primary-color);
-                color: white;
-                box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+                background: var(--sidebar-active);
+                color: var(--primary-color);
+                font-weight: 600;
             }
 
             .menu-link i {
-                width: 20px;
-                margin-right: 12px;
-                font-size: 1.1rem;
+                width: 18px;
+                margin-right: 10px;
+                font-size: 1rem;
+                text-align: center;
             }
 
             .logout-section {
                 position: absolute;
-                bottom: 2rem;
-                left: 1rem;
-                right: 1rem;
+                bottom: 1rem;
+                left: 0.75rem;
+                right: 0.75rem;
             }
 
             .logout-btn {
                 width: 100%;
-                background: #dc2626;
+                background: #ef4444;
                 border: none;
                 color: white;
-                padding: 0.75rem;
-                border-radius: 8px;
-                font-weight: 600;
-                transition: all 0.3s ease;
+                padding: 0.6rem;
+                border-radius: 6px;
+                font-weight: 500;
+                font-size: 0.875rem;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .logout-btn:hover {
-                background: #b91c1c;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+                background: #dc2626;
+            }
+
+            .logout-btn i {
+                margin-right: 6px;
             }
 
             /* Main Content */
             .main-content {
                 margin-left: var(--sidebar-width);
                 margin-top: var(--header-height);
-                min-height: calc(100vh - var(--header-height) - 80px);
-                padding: 2rem;
+                min-height: calc(100vh - var(--header-height));
+                padding: 1.5rem;
             }
 
             /* Footer */
             .main-footer {
                 margin-left: var(--sidebar-width);
                 background: white;
-                padding: 1.5rem 2rem;
-                border-top: 1px solid #e2e8f0;
-                color: #64748b;
+                padding: 1rem 1.5rem;
+                border-top: 1px solid var(--sidebar-border);
+                color: var(--text-secondary);
                 text-align: center;
-                margin-top: 2rem;
+                font-size: 0.875rem;
             }
 
             /* Welcome Card */
             .welcome-card {
-                background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-                border: none;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-                padding: 2.5rem;
-                margin-bottom: 2rem;
+                background: white;
+                border: 1px solid var(--sidebar-border);
+                border-radius: 12px;
+                box-shadow: var(--shadow-sm);
+                padding: 2rem;
+                margin-bottom: 1.5rem;
             }
 
             .welcome-title {
-                font-size: 2rem;
+                font-size: 1.75rem;
                 font-weight: 700;
-                color: #1e293b;
+                color: var(--text-primary);
                 margin-bottom: 0.5rem;
             }
 
             .welcome-subtitle {
-                color: #64748b;
-                font-size: 1.1rem;
+                color: var(--text-secondary);
+                font-size: 1rem;
+                margin-bottom: 1rem;
             }
 
             .role-badge {
-                background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+                background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
                 color: white;
-                padding: 0.5rem 1rem;
-                border-radius: 50px;
-                font-weight: 600;
-                display: inline-block;
-                margin-top: 1rem;
+                padding: 0.4rem 0.8rem;
+                border-radius: 20px;
+                font-weight: 500;
+                font-size: 0.8rem;
+                display: inline-flex;
+                align-items: center;
             }
 
             /* Stats Cards */
             .stats-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 1.5rem;
-                margin-top: 2rem;
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: 1rem;
             }
 
             .stat-card {
                 background: white;
-                border-radius: 12px;
-                padding: 1.5rem;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-                border-left: 4px solid var(--primary-color);
-                transition: all 0.3s ease;
+                border: 1px solid var(--sidebar-border);
+                border-radius: 10px;
+                padding: 1.25rem;
+                box-shadow: var(--shadow-sm);
+                transition: all 0.2s ease;
             }
 
             .stat-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                transform: translateY(-1px);
+                box-shadow: var(--shadow-md);
+            }
+
+            .stat-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 1rem;
             }
 
             .stat-icon {
-                width: 48px;
-                height: 48px;
-                background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+                width: 40px;
+                height: 40px;
+                background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
                 color: white;
-                border-radius: 10px;
+                border-radius: 8px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                font-size: 1.2rem;
+            }
+
+            .stat-value {
                 font-size: 1.5rem;
-                margin-bottom: 1rem;
+                font-weight: 700;
+                color: var(--text-primary);
+                margin: 0;
+            }
+
+            .stat-label {
+                color: var(--text-secondary);
+                font-size: 0.875rem;
+                margin: 0;
+                margin-top: 0.25rem;
             }
 
             /* Responsive */
@@ -229,6 +286,7 @@
 
                 .main-sidebar.show {
                     transform: translateX(0);
+                    box-shadow: var(--shadow-lg);
                 }
 
                 .main-content,
@@ -237,7 +295,11 @@
                 }
 
                 .sidebar-toggle {
-                    display: block !important;
+                    display: flex !important;
+                }
+
+                .stats-grid {
+                    grid-template-columns: 1fr;
                 }
             }
 
@@ -245,8 +307,36 @@
                 display: none;
                 background: none;
                 border: none;
-                color: white;
-                font-size: 1.5rem;
+                color: var(--text-secondary);
+                font-size: 1.25rem;
+                align-items: center;
+                justify-content: center;
+                padding: 0.5rem;
+                border-radius: 4px;
+                transition: all 0.2s ease;
+            }
+
+            .sidebar-toggle:hover {
+                background: var(--sidebar-hover);
+                color: var(--text-primary);
+            }
+
+            /* Scrollbar styling */
+            .main-sidebar::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .main-sidebar::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .main-sidebar::-webkit-scrollbar-thumb {
+                background: #d1d5db;
+                border-radius: 2px;
+            }
+
+            .main-sidebar::-webkit-scrollbar-thumb:hover {
+                background: #9ca3af;
             }
         </style>
         @stack('styles')
@@ -256,13 +346,13 @@
         <!-- Header -->
         <header class="main-header">
             <div class="container-fluid h-100">
-                <div class="d-flex align-items-center justify-content-between h-100">
+                <div class="d-flex align-items-center justify-content-between h-100 px-3">
                     <div class="d-flex align-items-center">
                         <button class="sidebar-toggle me-3" onclick="toggleSidebar()">
                             <i class="bi bi-list"></i>
                         </button>
                         <a href="{{ route('dashboard') }}" class="header-brand">
-                            <i class="bi bi-shop me-2"></i>
+                            <i class="bi bi-shop"></i>
                             Aplikasi Toko
                         </a>
                     </div>
@@ -280,26 +370,24 @@
         <!-- Sidebar -->
         <aside class="main-sidebar" id="sidebar">
             <div class="sidebar-menu">
-                <div class="menu-header">Navigation</div>
+                <div class="menu-header">Menu Utama</div>
 
                 <div class="menu-item">
                     <a href="{{ route('dashboard') }}"
                         class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-speedometer2"></i>
+                        <i class="bi bi-house"></i>
                         <span>Dashboard</span>
                     </a>
                 </div>
 
-                <!-- Semua admin bisa akses barang -->
                 <div class="menu-item">
                     <a href="{{ route('barang.index') }}"
                         class="menu-link {{ request()->is('barang*') ? 'active' : '' }}">
                         <i class="bi bi-box-seam"></i>
-                        <span>Barang</span>
+                        <span>Data Barang</span>
                     </a>
                 </div>
 
-                <!-- Semua admin bisa akses penjualan -->
                 <div class="menu-item">
                     <a href="{{ route('penjualan.index') }}"
                         class="menu-link {{ request()->is('penjualan*') ? 'active' : '' }}">
@@ -315,28 +403,6 @@
                         <span>Prediksi</span>
                     </a>
                 </div>
-
-                {{-- Bisa ditambahkan menu lain sesuai kebutuhan --}}
-                {{-- <div class="menu-item">
-                    <a href="#" class="menu-link">
-                        <i class="bi bi-people"></i>
-                        <span>Users</span>
-                    </a>
-                </div>
-
-                <div class="menu-item">
-                    <a href="#" class="menu-link">
-                        <i class="bi bi-bar-chart"></i>
-                        <span>Reports</span>
-                    </a>
-                </div>
-
-                <div class="menu-item">
-                    <a href="#" class="menu-link">
-                        <i class="bi bi-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                </div> --}}
             </div>
 
             @auth
@@ -344,7 +410,7 @@
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button type="submit" class="logout-btn">
-                            <i class="bi bi-box-arrow-right me-2"></i>
+                            <i class="bi bi-box-arrow-right"></i>
                             Logout
                         </button>
                     </form>
@@ -361,9 +427,9 @@
         <footer class="main-footer">
             <div class="container-fluid">
                 <p class="mb-0">
-                    © {{ date('Y') }} Aplikasi Toko. Made with
+                    © {{ date('Y') }} Aplikasi Toko. Dibuat dengan
                     <i class="bi bi-heart-fill text-danger"></i>
-                    by Your Team
+                    oleh Tim Developer
                 </p>
             </div>
         </footer>

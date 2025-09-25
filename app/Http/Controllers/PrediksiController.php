@@ -53,7 +53,7 @@ class PrediksiController extends Controller
         $penjualanData = Penjualan::where('nama_barang', $barang->nama_barang)
             ->selectRaw('YEAR(tanggal) as tahun, MONTH(tanggal) as bulan, COUNT(*) as count')
             ->groupBy('tahun', 'bulan')
-            ->orderBy('tahun', 'desc')
+            ->orderBy('tahun', 'asc')
             ->orderBy('bulan', 'asc')
             ->get();
 
@@ -100,8 +100,11 @@ class PrediksiController extends Controller
     {
         $request->validate([
             'barang_id'     => 'required|exists:barang,id',
-            'tahun_dataset' => 'nullable|integer',
-            'bulan_dataset' => 'nullable|integer|min:1|max:12',
+            'use_all_data'  => 'required|boolean',
+            'start_year'    => 'nullable|integer|required_if:use_all_data,0',
+            'start_month'   => 'nullable|integer|min:1|max:12|required_if:use_all_data,0',
+            'end_year'      => 'nullable|integer|required_if:use_all_data,0',
+            'end_month'     => 'nullable|integer|min:1|max:12|required_if:use_all_data,0',
         ]);
 
         // Set periode tetap 3 bulan
@@ -113,21 +116,13 @@ class PrediksiController extends Controller
         $query = Penjualan::selectRaw('YEAR(tanggal) as tahun, MONTH(tanggal) as bulan, SUM(jumlah_penjualan) as total')
             ->where('nama_barang', $barang->nama_barang);
 
-        // Filter berdasarkan tahun dan bulan yang dipilih
-        if ($request->tahun_dataset) {
-            $query->whereYear('tanggal', $request->tahun_dataset);
+        // Filter berdasarkan pilihan dataset
+        if (!$request->use_all_data) {
+            // Jika menggunakan range tertentu
+            $startDate = Carbon::create($request->start_year, $request->start_month, 1);
+            $endDate = Carbon::create($request->end_year, $request->end_month, 1)->endOfMonth();
 
-            if ($request->bulan_dataset) {
-                // Jika bulan dipilih, ambil data dari bulan tersebut hingga data terakhir yang tersedia
-                $query->where(function ($q) use ($request) {
-                    $q->where(function ($subQ) use ($request) {
-                        $subQ->whereYear('tanggal', $request->tahun_dataset)
-                             ->whereMonth('tanggal', '>=', $request->bulan_dataset);
-                    })->orWhere(function ($subQ) use ($request) {
-                        $subQ->whereYear('tanggal', '>', $request->tahun_dataset);
-                    });
-                });
-            }
+            $query->whereBetween('tanggal', [$startDate, $endDate]);
         }
 
         $penjualan = $query->groupBy('tahun', 'bulan')
@@ -137,24 +132,18 @@ class PrediksiController extends Controller
 
         // Validasi minimal 5 bulan data
         if ($penjualan->count() < 5) {
-            return back()->with('error', 'Data penjualan minimal harus 5 bulan untuk prediksi yang akurat.');
+            return back()->with('error', 'Dataset yang dipilih harus memiliki minimal 5 bulan data untuk prediksi yang akurat.');
         }
 
         // --- Ambil tanggal terakhir (max) ---
         $lastDateQuery = Penjualan::where('nama_barang', $barang->nama_barang);
-        if ($request->tahun_dataset) {
-            $lastDateQuery->whereYear('tanggal', $request->tahun_dataset);
-            if ($request->bulan_dataset) {
-                $lastDateQuery->where(function ($q) use ($request) {
-                    $q->where(function ($subQ) use ($request) {
-                        $subQ->whereYear('tanggal', $request->tahun_dataset)
-                             ->whereMonth('tanggal', '>=', $request->bulan_dataset);
-                    })->orWhere(function ($subQ) use ($request) {
-                        $subQ->whereYear('tanggal', '>', $request->tahun_dataset);
-                    });
-                });
-            }
+
+        if (!$request->use_all_data) {
+            $startDate = Carbon::create($request->start_year, $request->start_month, 1);
+            $endDate = Carbon::create($request->end_year, $request->end_month, 1)->endOfMonth();
+            $lastDateQuery->whereBetween('tanggal', [$startDate, $endDate]);
         }
+
         $lastDate = $lastDateQuery->max('tanggal');
 
         // Ambil total bulanan sebagai array Y
@@ -218,6 +207,21 @@ class PrediksiController extends Controller
         }
         $mape = round(($mape / $n) * 100, 2);
 
+        // Buat keterangan dataset yang digunakan
+        $datasetInfo = '';
+        if ($request->use_all_data) {
+            $datasetInfo = 'Menggunakan semua data yang tersedia (' . $n . ' bulan)';
+        } else {
+            $monthNamesLong = [
+                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            ];
+            $startText = $monthNamesLong[$request->start_month] . ' ' . $request->start_year;
+            $endText = $monthNamesLong[$request->end_month] . ' ' . $request->end_year;
+            $datasetInfo = "Dataset periode: {$startText} - {$endText} ({$n} bulan)";
+        }
+
         // Simpan hasil
         Prediksi::create([
             'barang_id'      => $barang->id,
@@ -225,8 +229,9 @@ class PrediksiController extends Controller
             'periode'        => $request->periode,
             'hasil_prediksi' => $hasilPrediksi,
             'mape'           => $mape,
+            'dataset_info'   => $datasetInfo, // Tambahan info dataset
         ]);
 
-        return redirect()->route('prediksi.index')->with('success', 'Prediksi berhasil disimpan.');
+        return redirect()->route('prediksi.index')->with('success', 'Prediksi berhasil disimpan dengan dataset: ' . $datasetInfo);
     }
 }

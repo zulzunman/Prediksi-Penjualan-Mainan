@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'Daftar Barang - Aplikasi Toko')
+@section('title', 'Data Prediksi - Aplikasi Toko')
 
 @section('content')
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-1 text-gray-800">
-                <i class="bi bi-box-seam text-primary me-2"></i>
-                Daftar Barang
+                <i class="bi bi-graph-up-arrow text-primary me-2"></i>
+                Data Prediksi
             </h1>
-            <p class="text-muted mb-0">Kelola data barang di toko Anda</p>
+            <p class="text-muted mb-0">Kelola dan analisis prediksi penjualan toko Anda</p>
         </div>
         <div>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBarangModal">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPrediksiModal">
                 <i class="bi bi-plus-circle me-2"></i>
-                Tambah Barang
+                Buat Prediksi
             </button>
         </div>
     </div>
@@ -52,18 +52,18 @@
         </div>
     @endif
 
-    <!-- Stats Cards -->
+    {{-- <!-- Stats Cards -->
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="stat-icon bg-primary text-white rounded me-3">
-                            <i class="bi bi-box"></i>
+                            <i class="bi bi-graph-up"></i>
                         </div>
                         <div>
-                            <h6 class="card-title text-muted mb-1">Total Barang</h6>
-                            <h4 class="mb-0">{{ $barang->count() }}</h4>
+                            <h6 class="card-title text-muted mb-1">Total Prediksi</h6>
+                            <h4 class="mb-0">{{ $prediksi->count() }}</h4>
                         </div>
                     </div>
                 </div>
@@ -77,8 +77,8 @@
                             <i class="bi bi-check-circle"></i>
                         </div>
                         <div>
-                            <h6 class="card-title text-muted mb-1">Stok Tersedia</h6>
-                            <h4 class="mb-0">{{ $barang->where('stok', '>', 0)->count() }}</h4>
+                            <h6 class="card-title text-muted mb-1">Akurasi Tinggi</h6>
+                            <h4 class="mb-0">{{ $prediksi->where('mape', '<=', 10)->count() }}</h4>
                         </div>
                     </div>
                 </div>
@@ -92,8 +92,8 @@
                             <i class="bi bi-exclamation-triangle"></i>
                         </div>
                         <div>
-                            <h6 class="card-title text-muted mb-1">Stok Habis</h6>
-                            <h4 class="mb-0">{{ $barang->where('stok', '=', 0)->count() }}</h4>
+                            <h6 class="card-title text-muted mb-1">Akurasi Rendah</h6>
+                            <h4 class="mb-0">{{ $prediksi->where('mape', '>', 50)->count() }}</h4>
                         </div>
                     </div>
                 </div>
@@ -104,25 +104,25 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="stat-icon bg-info text-white rounded me-3">
-                            <i class="bi bi-currency-dollar"></i>
+                            <i class="bi bi-calendar-month"></i>
                         </div>
                         <div>
-                            <h6 class="card-title text-muted mb-1">Nilai Total</h6>
-                            <h4 class="mb-0">Rp
-                                {{ number_format($barang->sum(function ($item) {return $item->harga * $item->stok;})) }}
+                            <h6 class="card-title text-muted mb-1">Bulan Ini</h6>
+                            <h4 class="mb-0">
+                                {{ $prediksi->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])->count() }}
                             </h4>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <!-- Search and Filter Section -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0">
                             <i class="bi bi-search"></i>
@@ -131,15 +131,15 @@
                             placeholder="Cari nama barang...">
                     </div>
                 </div>
-                {{-- <div class="col-md-3">
-                    <select id="statusFilter" class="form-select">
-                        <option value="">Semua Status</option>
-                        <option value="available">Stok Tersedia</option>
-                        <option value="empty">Stok Habis</option>
-                        <option value="low">Stok Menipis (< 10)</option>
+                {{-- <div class="col-md-2">
+                    <select id="periodeFilter" class="form-select">
+                        <option value="">Semua Periode</option>
+                        <option value="3">3 Bulan</option>
+                        <option value="6">6 Bulan</option>
+                        <option value="12">12 Bulan</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="btn-group w-100" role="group">
                         <button type="button" class="btn btn-outline-secondary active" data-view="table">
                             <i class="bi bi-table me-1"></i>
@@ -161,7 +161,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">
                     <i class="bi bi-table me-2"></i>
-                    Data Barang
+                    Data Prediksi
                 </h6>
                 {{-- <div class="dropdown">
                     <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
@@ -186,9 +186,9 @@
             </div>
         </div>
         <div class="card-body p-0">
-            @if ($barang->count() > 0)
+            @if ($prediksi->count() > 0)
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0" id="barangTable">
+                    <table class="table table-hover mb-0" id="prediksiTable">
                         <thead class="table-light">
                             <tr>
                                 <th class="border-0 fw-semibold">
@@ -201,76 +201,100 @@
                                     <i class="bi bi-box me-1"></i>Nama Barang
                                 </th>
                                 <th class="border-0 fw-semibold">
-                                    <i class="bi bi-stack me-1"></i>Stok
+                                    <i class="bi bi-info-circle me-1"></i>Dataset Info
+                                </th>
+                                {{-- <th class="border-0 fw-semibold">
+                                    <i class="bi bi-gear me-1"></i>Metode
+                                </th> --}}
+                                <th class="border-0 fw-semibold">
+                                    <i class="bi bi-calendar me-1"></i>Periode
                                 </th>
                                 <th class="border-0 fw-semibold">
-                                    <i class="bi bi-currency-dollar me-1"></i>Harga
+                                    <i class="bi bi-bullseye me-1"></i>MAPE
                                 </th>
-                                <th class="border-0 fw-semibold">
-                                    <i class="bi bi-calculator me-1"></i>Nilai Total
-                                </th>
-                                <th class="border-0 fw-semibold">Status</th>
+                                {{-- <th class="border-0 fw-semibold">
+                                    <i class="bi bi-graph-up me-1"></i>Total Prediksi
+                                </th> --}}
+                                <th class="border-0 fw-semibold">Tanggal Dibuat</th>
                                 <th class="border-0 fw-semibold text-center">
                                     <i class="bi bi-gear me-1"></i>Aksi
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($barang as $index => $b)
-                                <tr class="barang-row" data-name="{{ strtolower($b->nama_barang) }}"
-                                    data-stok="{{ $b->stok }}">
+                            @foreach ($prediksi as $index => $p)
+                                @php
+                                    // Normalisasi hasil_prediksi untuk menghitung total
+                                    $raw = $p->hasil_prediksi;
+                                    $items = [];
+                                    if (
+                                        is_array($raw) &&
+                                        isset($raw[0]) &&
+                                        is_array($raw[0]) &&
+                                        array_key_exists('label', $raw[0])
+                                    ) {
+                                        $items = $raw;
+                                    } elseif (is_array($raw)) {
+                                        foreach ($raw as $lbl => $val) {
+                                            $items[] = ['label' => $lbl, 'nilai' => $val];
+                                        }
+                                    }
+                                    $totalPrediksi = collect($items)->sum('nilai');
+                                @endphp
+                                <tr class="prediksi-row" data-name="{{ strtolower($p->barang->nama_barang ?? '') }}"
+                                    data-metode="{{ $p->metode }}" data-mape="{{ $p->mape }}"
+                                    data-periode="{{ $p->periode }}">
                                     <td>
                                         <div class="form-check">
                                             <input class="form-check-input row-checkbox" type="checkbox"
-                                                value="{{ $b->id }}">
+                                                value="{{ $p->id }}">
                                         </div>
                                     </td>
                                     <td class="fw-medium">{{ $index + 1 }}</td>
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
-                                                <i class="bi bi-box text-primary"></i>
+                                                <i class="bi bi-graph-up text-primary"></i>
                                             </div>
                                             <div>
-                                                <div class="fw-semibold">{{ $b->nama_barang }}</div>
+                                                <div class="fw-semibold">{{ $p->barang->nama_barang ?? 'N/A' }}</div>
+                                                <small class="text-muted">ID: {{ $p->id }}</small>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <span
-                                            class="badge {{ $b->stok > 10 ? 'bg-success' : ($b->stok > 0 ? 'bg-warning' : 'bg-danger') }}">
-                                            {{ $b->stok }} unit
+                                        <small class="text-muted">
+                                            {{ $p->dataset_info ?? 'N/A' }}
+                                        </small>
+                                    </td>
+                                    {{-- <td>
+                                        <span class="badge bg-info-subtle text-info">
+                                            {{ ucfirst(str_replace('_', ' ', $p->metode)) }}
+                                        </span>
+                                    </td> --}}
+                                    <td>
+                                        <span class="badge bg-secondary-subtle text-secondary">
+                                            {{ $p->periode }} bulan
                                         </span>
                                     </td>
-                                    <td class="fw-semibold">Rp {{ number_format($b->harga) }}</td>
-                                    <td class="fw-semibold text-success">Rp {{ number_format($b->harga * $b->stok) }}</td>
                                     <td>
-                                        @if ($b->stok > 10)
-                                            <span class="badge bg-success-subtle text-success">
-                                                <i class="bi bi-check-circle me-1"></i>Tersedia
-                                            </span>
-                                        @elseif($b->stok > 0)
-                                            <span class="badge bg-warning-subtle text-warning">
-                                                <i class="bi bi-exclamation-triangle me-1"></i>Menipis
-                                            </span>
-                                        @else
-                                            <span class="badge bg-danger-subtle text-danger">
-                                                <i class="bi bi-x-circle me-1"></i>Habis
-                                            </span>
-                                        @endif
+                                        <span
+                                            class="badge {{ $p->mape <= 10 ? 'bg-success' : ($p->mape <= 20 ? 'bg-warning' : ($p->mape <= 50 ? 'bg-info' : 'bg-danger')) }}">
+                                            {{ $p->mape }}%
+                                        </span>
                                     </td>
+                                    {{-- <td class="fw-semibold text-success">
+                                        {{ number_format($totalPrediksi) }} unit
+                                    </td> --}}
+                                    <td>{{ $p->created_at->format('d M Y') }}</td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <button class="btn btn-outline-info btn-sm"
-                                                onclick="viewDetail({{ $b->id }})" title="Detail">
+                                            <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal"
+                                                data-bs-target="#showPrediksiModal{{ $p->id }}" title="Detail">
                                                 <i class="bi bi-eye"></i>
                                             </button>
-                                            <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal"
-                                                data-bs-target="#editBarangModal{{ $b->id }}" title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
                                             <button class="btn btn-outline-danger btn-sm"
-                                                onclick="deleteItem({{ $b->id }}, '{{ $b->nama_barang }}')"
+                                                onclick="deleteItem({{ $p->id }}, '{{ $p->barang->nama_barang ?? 'N/A' }}')"
                                                 title="Hapus">
                                                 <i class="bi bi-trash"></i>
                                             </button>
@@ -283,22 +307,22 @@
                 </div>
             @else
                 <div class="text-center py-5">
-                    <i class="bi bi-box display-1 text-muted"></i>
-                    <h5 class="mt-3 text-muted">Belum ada data barang</h5>
-                    <p class="text-muted">Klik tombol "Tambah Barang" untuk menambah data pertama</p>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBarangModal">
+                    <i class="bi bi-graph-up display-1 text-muted"></i>
+                    <h5 class="mt-3 text-muted">Belum ada data prediksi</h5>
+                    <p class="text-muted">Klik tombol "Buat Prediksi" untuk membuat prediksi pertama</p>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPrediksiModal">
                         <i class="bi bi-plus-circle me-2"></i>
-                        Tambah Barang Pertama
+                        Buat Prediksi Pertama
                     </button>
                 </div>
             @endif
         </div>
 
-        @if ($barang->count() > 0)
+        @if ($prediksi->count() > 0)
             <div class="card-footer bg-light">
                 <div class="d-flex justify-content-between align-items-center">
                     <small class="text-muted">
-                        Menampilkan {{ $barang->count() }} data barang
+                        Menampilkan {{ $prediksi->count() }} data prediksi
                     </small>
                     <div class="btn-group btn-group-sm">
                         <button class="btn btn-outline-danger" onclick="bulkDelete()" disabled id="bulkDeleteBtn">
@@ -313,14 +337,26 @@
 
     <!-- Grid View (Hidden by default) -->
     <div id="gridView" class="row g-3" style="display: none;">
-        @foreach ($barang as $b)
-            <div class="col-md-4 barang-card" data-name="{{ strtolower($b->nama_barang) }}"
-                data-stok="{{ $b->stok }}">
+        @foreach ($prediksi as $p)
+            @php
+                $raw = $p->hasil_prediksi;
+                $items = [];
+                if (is_array($raw) && isset($raw[0]) && is_array($raw[0]) && array_key_exists('label', $raw[0])) {
+                    $items = $raw;
+                } elseif (is_array($raw)) {
+                    foreach ($raw as $lbl => $val) {
+                        $items[] = ['label' => $lbl, 'nilai' => $val];
+                    }
+                }
+                $totalPrediksi = collect($items)->sum('nilai');
+            @endphp
+            <div class="col-md-4 prediksi-card" data-name="{{ strtolower($p->barang->nama_barang ?? '') }}"
+                data-metode="{{ $p->metode }}" data-mape="{{ $p->mape }}" data-periode="{{ $p->periode }}">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div class="bg-primary bg-opacity-10 rounded-circle p-3">
-                                <i class="bi bi-box text-primary fs-4"></i>
+                                <i class="bi bi-graph-up text-primary fs-4"></i>
                             </div>
                             <div class="dropdown">
                                 <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
@@ -328,57 +364,66 @@
                                     <i class="bi bi-three-dots"></i>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" onclick="viewDetail({{ $b->id }})">
+                                    <li><a class="dropdown-item" data-bs-toggle="modal"
+                                            data-bs-target="#showPrediksiModal{{ $p->id }}">
                                             <i class="bi bi-eye me-2"></i>Detail
                                         </a></li>
                                     <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                            data-bs-target="#editBarangModal{{ $b->id }}">
+                                            data-bs-target="#editPrediksiModal{{ $p->id }}">
                                             <i class="bi bi-pencil me-2"></i>Edit
                                         </a></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
                                     <li><a class="dropdown-item text-danger"
-                                            onclick="deleteItem({{ $b->id }}, '{{ $b->nama_barang }}')">
+                                            onclick="deleteItem({{ $p->id }}, '{{ $p->barang->nama_barang ?? 'N/A' }}')">
                                             <i class="bi bi-trash me-2"></i>Hapus
                                         </a></li>
                                 </ul>
                             </div>
                         </div>
-                        <h5 class="card-title">{{ $b->nama_barang }}</h5>
-                        <p class="text-muted small mb-3">ID: {{ $b->id }}</p>
+                        <h5 class="card-title">{{ $p->barang->nama_barang ?? 'N/A' }}</h5>
+                        <p class="text-muted small mb-3">{{ ucfirst(str_replace('_', ' ', $p->metode)) }}</p>
 
                         <div class="row text-center mb-3">
                             <div class="col-6">
-                                <h6 class="text-muted mb-1">Stok</h6>
+                                <h6 class="text-muted mb-1">MAPE</h6>
                                 <span
-                                    class="badge {{ $b->stok > 10 ? 'bg-success' : ($b->stok > 0 ? 'bg-warning' : 'bg-danger') }} fs-6">
-                                    {{ $b->stok }}
+                                    class="badge {{ $p->mape <= 10 ? 'bg-success' : ($p->mape <= 20 ? 'bg-warning' : ($p->mape <= 50 ? 'bg-info' : 'bg-danger')) }} fs-6">
+                                    {{ $p->mape }}%
                                 </span>
                             </div>
                             <div class="col-6">
-                                <h6 class="text-muted mb-1">Harga</h6>
-                                <div class="fw-semibold">Rp {{ number_format($b->harga) }}</div>
+                                <h6 class="text-muted mb-1">Periode</h6>
+                                <div class="fw-semibold">{{ $p->periode }} bulan</div>
                             </div>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center">
-                            @if ($b->stok > 10)
+                            @if ($p->mape <= 10)
                                 <span class="badge bg-success-subtle text-success">
-                                    <i class="bi bi-check-circle me-1"></i>Tersedia
+                                    <i class="bi bi-check-circle me-1"></i>Sangat Baik
                                 </span>
-                            @elseif($b->stok > 0)
+                            @elseif($p->mape <= 20)
                                 <span class="badge bg-warning-subtle text-warning">
-                                    <i class="bi bi-exclamation-triangle me-1"></i>Menipis
+                                    <i class="bi bi-exclamation-triangle me-1"></i>Baik
+                                </span>
+                            @elseif($p->mape <= 50)
+                                <span class="badge bg-info-subtle text-info">
+                                    <i class="bi bi-info-circle me-1"></i>Cukup
                                 </span>
                             @else
                                 <span class="badge bg-danger-subtle text-danger">
-                                    <i class="bi bi-x-circle me-1"></i>Habis
+                                    <i class="bi bi-x-circle me-1"></i>Kurang
                                 </span>
                             @endif
                             <small class="text-success fw-semibold">
-                                Total: Rp {{ number_format($b->harga * $b->stok) }}
+                                Total: {{ number_format($totalPrediksi) }} unit
                             </small>
+                        </div>
+
+                        <div class="mt-3 text-center">
+                            <small class="text-muted">Dibuat: {{ $p->created_at->format('d M Y') }}</small>
                         </div>
                     </div>
                 </div>
@@ -387,10 +432,10 @@
     </div>
 
     <!-- Include Modals -->
-    @include('barang.create')
+    @include('prediksi.create')
 
-    @foreach ($barang as $b)
-        @include('barang.edit', ['barang' => $b])
+    @foreach ($prediksi as $p)
+        @include('prediksi.show', ['prediksi' => $p])
     @endforeach
 @endsection
 
@@ -415,7 +460,7 @@
             vertical-align: middle;
         }
 
-        .barang-row:hover {
+        .prediksi-row:hover {
             background-color: rgba(13, 110, 253, 0.05);
         }
 
@@ -473,8 +518,8 @@
         // Search functionality
         document.getElementById('searchInput').addEventListener('keyup', function() {
             const searchTerm = this.value.toLowerCase();
-            const rows = document.querySelectorAll('.barang-row');
-            const cards = document.querySelectorAll('.barang-card');
+            const rows = document.querySelectorAll('.prediksi-row');
+            const cards = document.querySelectorAll('.prediksi-card');
 
             // Filter table rows
             rows.forEach(row => {
@@ -489,20 +534,26 @@
             });
         });
 
-        // Status filter
-        document.getElementById('statusFilter').addEventListener('change', function() {
-            const status = this.value;
-            const rows = document.querySelectorAll('.barang-row');
-            const cards = document.querySelectorAll('.barang-card');
+        // Periode filter
+        document.getElementById('periodeFilter').addEventListener('change', function() {
+            const periode = this.value;
+            filterData();
+        });
+
+        function filterData() {
+            const periode = document.getElementById('periodeFilter').value;
+            const rows = document.querySelectorAll('.prediksi-row');
+            const cards = document.querySelectorAll('.prediksi-card');
 
             const filterItems = (items) => {
                 items.forEach(item => {
-                    const stok = parseInt(item.dataset.stok);
+                    const itemMetode = item.dataset.metode;
+                    const itemMape = parseFloat(item.dataset.mape);
+                    const itemPeriode = item.dataset.periode;
                     let show = true;
 
-                    if (status === 'available' && stok <= 0) show = false;
-                    if (status === 'empty' && stok > 0) show = false;
-                    if (status === 'low' && (stok >= 10 || stok <= 0)) show = false;
+                    // Filter periode
+                    if (periode && itemPeriode !== periode) show = false;
 
                     item.style.display = show ? '' : 'none';
                 });
@@ -510,7 +561,7 @@
 
             filterItems(rows);
             filterItems(cards);
-        });
+        }
 
         // View toggle
         document.querySelectorAll('[data-view]').forEach(btn => {
@@ -555,14 +606,16 @@
         // Delete item function
         function deleteItem(id, name) {
             if (confirm(
-                    `Apakah Anda yakin ingin menghapus barang "${name}"?\n\nData yang sudah dihapus tidak dapat dikembalikan.`
+                    `Apakah Anda yakin ingin menghapus prediksi untuk "${name}"?\n\nData yang sudah dihapus tidak dapat dikembalikan.`
                 )) {
                 // Create form and submit
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = `/barang/${id}`;
+                form.action = `/prediksi/${id}`;
                 form.innerHTML = `
                     @csrf
+                    @method('DELETE')
+                                        @csrf
                     @method('DELETE')
                 `;
                 document.body.appendChild(form);
@@ -572,81 +625,45 @@
 
         // Bulk delete function
         function bulkDelete() {
+            if (!confirm(
+                    "Apakah Anda yakin ingin menghapus semua data yang dipilih?\n\nData yang sudah dihapus tidak dapat dikembalikan."
+                )) {
+                return;
+            }
+
             const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
             if (checkedBoxes.length === 0) return;
 
-            if (confirm(
-                    `Apakah Anda yakin ingin menghapus ${checkedBoxes.length} barang yang dipilih?\n\nData yang sudah dihapus tidak dapat dikembalikan.`
-                )) {
-                showToast('Fitur bulk delete akan diimplementasikan', 'info');
-            }
-        }
-
-        // View detail function
-        function viewDetail(id) {
-            showToast('Fitur detail akan diimplementasikan', 'info');
-        }
-
-        // Export functions
-        function exportData(type) {
-            showToast(`Export ${type.toUpperCase()} akan diimplementasikan`, 'info');
-        }
-
-        function printTable() {
-            window.print();
-        }
-
-        // Toast function
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = `alert alert-${type} position-fixed`;
-            toast.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
-            toast.innerHTML = `
-                <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-triangle'} me-2"></i>
-                ${message}
-                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+            // Buat form dengan data id terpilih
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/prediksi/bulk-delete`; // pastikan route ini sudah ada di web.php
+            form.innerHTML = `
+                @csrf
+                @method('DELETE')
+                ${Array.from(checkedBoxes).map(cb => `<input type="hidden" name="ids[]" value="${cb.value}">`).join('')}
             `;
 
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                if (toast.parentElement) {
-                    toast.remove();
-                }
-            }, 3000);
+            document.body.appendChild(form);
+            form.submit();
         }
 
-        // Form validation
-        (function() {
-            'use strict';
-            window.addEventListener('load', function() {
-                var forms = document.getElementsByClassName('needs-validation');
-                var validation = Array.prototype.filter.call(forms, function(form) {
-                    form.addEventListener('submit', function(event) {
-                        if (form.checkValidity() === false) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    }, false);
-                });
-            }, false);
-        })();
+        // Export Data
+        function exportData(type) {
+            window.location.href = `/prediksi/export/${type}`;
+        }
 
-        // Auto open modal if there are validation errors
-        @if ($errors->any())
-            document.addEventListener('DOMContentLoaded', function() {
-                // Check if it's create or edit error based on old input
-                @if (old('_method') == 'PUT')
-                    // This is an edit error - find the correct modal
-                    const editModals = document.querySelectorAll('[id^="editBarangModal"]');
-                    // You might need additional logic here to determine which edit modal to open
-                @else
-                    // This is a create error
-                    const createModal = new bootstrap.Modal(document.getElementById('createBarangModal'));
-                    createModal.show();
-                @endif
-            });
-        @endif
+        // Print table
+        function printTable() {
+            const printContents = document.getElementById("prediksiTable").outerHTML;
+            const newWindow = window.open('', '', 'width=800, height=600');
+            newWindow.document.write('<html><head><title>Print</title>');
+            newWindow.document.write('<link rel="stylesheet" href="{{ asset('css/app.css') }}">');
+            newWindow.document.write('</head><body>');
+            newWindow.document.write(printContents);
+            newWindow.document.write('</body></html>');
+            newWindow.document.close();
+            newWindow.print();
+        }
     </script>
 @endpush

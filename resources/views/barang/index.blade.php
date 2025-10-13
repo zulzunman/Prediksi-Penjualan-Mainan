@@ -261,10 +261,10 @@
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <button class="btn btn-outline-info btn-sm"
+                                            {{-- <button class="btn btn-outline-info btn-sm"
                                                 onclick="viewDetail({{ $b->id }})" title="Detail">
                                                 <i class="bi bi-eye"></i>
-                                            </button>
+                                            </button> --}}
                                             <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal"
                                                 data-bs-target="#editBarangModal{{ $b->id }}" title="Edit">
                                                 <i class="bi bi-pencil"></i>

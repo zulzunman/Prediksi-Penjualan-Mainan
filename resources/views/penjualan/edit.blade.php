@@ -1,6 +1,6 @@
 <!-- Edit Penjualan Modal -->
-<div class="modal fade" id="editModal{{ $penjualan->id }}" tabindex="-1"
-    aria-labelledby="editModalLabel{{ $penjualan->id }}" aria-hidden="true">
+<div class="modal fade" id="editPenjualanModal{{ $penjualan->id }}" tabindex="-1"
+    aria-labelledby="editPenjualanModalLabel{{ $penjualan->id }}" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="{{ route('penjualan.update', $penjualan->id) }}" method="POST" class="needs-validation"
@@ -8,7 +8,7 @@
                 @csrf
                 @method('PUT')
                 <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title" id="editModalLabel{{ $penjualan->id }}">
+                    <h5 class="modal-title" id="editPenjualanModalLabel{{ $penjualan->id }}">
                         <i class="bi bi-pencil-square me-2"></i>
                         Edit Penjualan: {{ $penjualan->nama_barang }}
                     </h5>
